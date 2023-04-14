@@ -4,7 +4,7 @@
   "description": "",
   "main": "bitcore-lib.js",
   "scripts": {
-    "start": "webpack --mode production -w"
+    "start": "webpack --mode production"
   },
   "keywords": [],
   "author": "",
