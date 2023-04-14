@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="follow,index" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SHELTR</title>
+
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+    <link rel="manifest" href="/icons/site.webmanifest">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+
+    <script src="https://unpkg.com/html5-qrcode@2.3.2/html5-qrcode.min.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="/css/pyscript.css" />
+    <script defer src="https://pyscript.net/releases/2023.03.1/pyscript.js"></script>
+    <script defer src="/SHELTRjs/_bundle.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
+    <script src="duplicate.js"></script>
+    
+  
+    <link rel="stylesheet" href="/css/words.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/main_window.css" />
+
+    <py-config>
+      terminal = false
+      packages = ["cryptography"]
+      [[fetch]]
+        files = ["/SHELTRpy/request.py", "/SHELTRpy/ghostCrypto.py", "/SHELTRpy/main.py", "/SHELTRpy/wallet.py", "/SHELTRpy/insight_api.py",
+                "/SHELTRpy/transaction.py", "/SHELTRpy/ecc.py", "/currencies.json"]
+      [[fetch]]
+        from = "https://raw.githubusercontent.com/ghost-coin/ghost-coldstaking-pools/master/"
+        files = ['list.json']
+
+    </py-config>
+
+    <script>
+        const supported = (() => {
+        try {
+            if (typeof WebAssembly === "object"
+                && typeof WebAssembly.instantiate === "function") {
+                const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+                if (module instanceof WebAssembly.Module)
+                    return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+            }
+        } catch (e) {
+        }
+        return false;
+    })();
+
+    if (!supported){
+      document.getElementById("no-wasm-tab-warning").style.diplay = "block";
+    }
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+
+        window.addEventListener('beforeinstallprompt', event => {
+          event.preventDefault();
+          var button = document.querySelector('button');
+          button.removeAttribute('hidden');
+          button.addEventListener('click', () => {
+            event.prompt();
+            button.setAttribute('disabled', true);
+          });
+        });
+      }
+
+      function show(shown, hidden) {
+      document.getElementById(shown).style.display='block';
+      document.getElementById(hidden).style.display='none';
+      return false;
+    }
+    </script>
+
+    <script type="text/javascript">
+        var isDupe = false
+        $(document).ready(function () {
+            if (window.IsDuplicate()) {
+                isDupe = true
+                alert("SHELTR can only be open in one tab at a time.\nPlease close all other tabs and refresh the page.");
+            }
+        });
+    </script>
+
+  </head>
+    <body>
+    <py-script src="SHELTRpy/main.py"></py-script>
+
+    <div class="loading" id="loading">
+      <img class="logo" id="logo" src="icons/sheltr-loading-transparant.png"/>
+      <label id="dupe-tab-warning" for="logo" style="display:none;">Running instance of SHELTR detected<br>Please colse other tabs.</label>
+      <label id="no-wasm-tab-warning" for="logo" style="display:none;">WASM not supported by your browser<br>Please update your browser and try again.</label>
+      <noscript>
+        <label id="dupe-tab-warning" for="logo" style="display:block;opacity: 1">JavaScript Must be enabled for SHELTR to run.</label>
+      </noscript>
+    </div>
+
+    <div class="new-question beta-message" id="beta-message" style="display:none">
+      <img class="sheltr-logo-beta" src="icons/SHELTR_LOGO.png"/>
+      <div id="beta-text" class="question-text beta-text">
+        <p>Introducing SHELTR - the self custody wallet designed for Ghost Coin users.</p>
+        <p>With our advanced security features, managing and sending your Ghost Coin has never been safer or easier. Try our beta software now and experience the future of crypto wallets.</p>
+
+      </div>
+      <br>
+      <button class="new-button" py-click="" type="button" onclick="return show('new-question', 'beta-message');">Continue</button>
+    </div>
+
+    <div class="new-question" id="new-question" style="display:none">
+      <img class="sheltr-logo" src="icons/SHELTR_LOGO.png"/>
+      <div id="question-text" class="question-text">
+        You can either generate a new wallet<br>
+        or import an existing one.
+      </div>
+      <button id="import-button" class="import-button" type="button" onclick="return show('import-word-box','new-question');">Import</button>
+      <button class="new-button" id="new-button" py-click="runMnemonic()" type="button" onclick="return show('word-box','new-question');">New</button>
+    </div>
+
+    
+    <div class="word-box" id="word-box" style="display:none">
+      <img class="sheltr-logo-words" src="icons/SHELTR_LOGO.png"/>
+      <div for="word-box" class="words0" id="words0"></div>
+      <div class="words1" id="words1"></div>
+      <div class="words2" id="words2"></div>
+      <div class="words3" id="words3"></div>
+      <div class="words4" id="words4"></div>
+      <div class="words5" id="words5"></div>
+      <div class="words6" id="words6"></div>
+      <div class="words7" id="words7"></div>
+      <div class="words8" id="words8"></div>
+      <div class="words9" id="words9"></div>
+      <div class="words10" id="words10"></div>
+      <div class="words11" id="words11"></div>
+      <button py-click="copyWords()" onclick="return show('import-word-box','word-box');" id="continue-words" class="word-button" type="button" disabled>Copy & Continue</button>
+      <div id="words-disclamer" class="disclamer">
+      These words are used to restore your wallet. Write them down, and store them in a safe place.
+      </div>
+    </div>
+    
+    
+    <div class="set-password" id="set-password" style="display:none">
+      <form class="new-pass-form" id="new-pass-form">
+        <img class="sheltr-logo-set-pass" src="icons/SHELTR_LOGO.png"/>
+        <input class="new-pass-input" type="password" id="new-pass-input" placeholder="New password" />
+        <meter max="4" class="password-strength-meter" id="password-strength-meter"></meter>
+        <div class="meter-text" id="meter-text"></div>
+        <input class="new-pass-confirm" type="password" id="new-pass-confirm" placeholder="Confirm password" />
+        <button py-click="genWallet()" class="new-pass-button" id="new-pass-button" type="button" disabled>Submit</button>
+      <div id="pass-warning" class="pass-warning">
+      Choose a strong, yet memorable password.<br>
+      This is not recoverable!
+      </div>
+      </form>
+    </div>
+
+
+    <div id="content-body" class="content-body" style="display:none">
+
+      <div class="form-wrapper">
+
+      
+        <form class="bg-white">
+          <div class="logo-div">
+            <img class="ghost-logo" src="icons/SHELTR_LOGO.png"/>     
+          </<div>
+          
+          <div class="field-group">
+
+            <input class="input" onkeydown="return event.key != 'Enter';" type="password" id="password-input" placeholder="Enter password" />
+          </div>
+
+          <div class="field-group">
+            <button py-click="checkPass()" id="pass-submit-button" class="py-button" type="button" >Load Wallet</button>
+          </div>
+        </form>
+
+        <div class="bg-grey">
+          <small class="link-about"><a id="password-input-link" href="https://t.me/ghostcoinbymcafee" target="_blank">Find out more</a></small>
+        </div>
+      </div>
+    </div>
+    </div>
+  
+    <div class="import-word-box" id="import-word-box" style="display:none">
+      <form class="import-word-form" id="import-word-form">
+        <img class="sheltr-logo-import" src="icons/SHELTR_LOGO.png"/>
+        <textarea class="import-word-text" id="import-word-text" rows="3" cols="54" style="resize: none;" name="import-word"></textarea>
+        <button class="import-word-button" id="import-word-button" py-click="importWords()" type="button" disabled>Submit</button>    
+        <div id="import-messsage" class="import-messsage">
+        Please input your mnemonic into the text box.<br>
+        This is unique set of 12 english words.
+        </div>
+      </form>
+    </div>
+
+    <div class="message-box" id="message-box" style="display:none">
+    </div>
+
+    <div class="main-window" id="main-window" style="display:none">
+      
+      <section>
+        
+        <div class="primary-div-container" id="primary-div-container">
+          <img class="header-logo" id="header-logo" src="icons/SHELTR_LOGO.png" alt="">
+          <img class="hamburger" id="hamburger" src="icons/hamburger-menu-icon.png" alt="" py-onclick="tabBrowser('menu-tab', None)">
+          <div class="primary-div" id="primary-div">
+            
+            <div class="tab-button-container" id="tab-button-container">
+              <button class="overview-button" py-onclick="tabBrowser('overview-container', 'overview-button')" id="overview-button" type="button">Overview</button>
+              <button class="send-button" id="send-button" py-onclick="tabBrowser('send-tab', 'send-button')" type="button">Send</button>
+              <button class="receive-button" id="receive-button" py-onclick="tabBrowser('receive-tab', 'receive-button')" type="button">More</button>
+            </div>
+
+            <div class="overview-container" id="overview-container">
+              <div class="overview-balance-display" id="overview-balance-display">
+                <div class="balance-label" id="balance-label" py-onclick="toggleExtBal(0)">
+                  Total Balance
+                </div>
+                
+                <div class="overview-balance-major" id="overview-balance-major" py-onclick="toggleExtBal(0)">
+                  <span class="balance-display" style="">0</span><span>.00</span>
+                </div>
+
+                <table class="overview-balance-extended" id="overview-balance-extended" py-onclick="toggleExtBal(1)" style="display:none">
+                  <tr> 
+                    <td id="balance-spendable-text">Spendable:</td>
+                    <td class="balance-amt" id="balance-spendable">0.00</td>
+                  </tr>
+                  <tr> 
+                    <td id="balance-coldstake-text">Coldstaking:</td>
+                    <td class="balance-amt" id="balance-coldstake">0.00</td>
+                  </tr>
+                  <tr> 
+                    <td id="balance-staked-text">Staked:</td>
+                    <td class="balance-amt" id="balance-staked">0.00</td>
+                  </tr>
+                  <tr> 
+                    <td id="balance-unconfirmed-text">Unconfirmed:</td>
+                    <td class="balance-amt" id="balance-unconfirmed">0.00</td>
+                  </tr>
+                </table>
+
+                <div id="tx-history-label" class="tx-history-label">
+                  Recent Transactions
+                </div>
+              </div>
+
+              <div class="overview-tx-history" id="overview-tx-history">
+
+                <template id="tx-history-template"> 
+                  <div class="tx-history-item" id="tx-history-item">
+                    <div class="tx-type-icon" id="tx-type-icon"> 
+                    </div>
+                    <div class="tx-date" id="tx-date">
+                    </div>
+                    <div class="txid-item" id="txid-item">
+                    </div>
+
+                    <div class="tx-amount" id="tx-amount">
+                    </div>
+                  </div>
+                </template>
+
+                <template id="overview-tx-next-page">
+                  <div class="next-page-item" id="next-page-item"></div>
+                </template>
+
+              </div>
+              
+              <div class="overview-price-container" id="overview-price-container">
+              </div>
+
+            </div>
+
+            <div class="send-tab" id="send-tab" style="display:none">
+              <div class="send-tab-label" id="send-tab-label">
+                Send Payment
+              </div>
+              <form>
+                
+              
+              <input class="send-tab-input" id="send-tab-input" py-paste="pasteAddr()" placeholder="Recipient" type="text" name="" value="">
+              <input class="send-tab-amount" id="send-tab-amount" placeholder="Amount" type="number" min="0.00001" step="0.00000001" name="" value="">
+              <input class="send-tab-password" id="send-tab-password" placeholder="Password" type="password" name="" value="">
+              </form>
+              
+              <label class="send-tab-spendcs">
+                <span id="send-tab-toggle-label" class="toggle-label">Spend Coldstaking Outputs</span>
+                <input class="send-tab-checkbox" id="send-tab-checkbox" py-onclick="setSpendCS()" type="checkbox" unchecked>
+                <div class="toggle-switch"></div>
+                
+              </label>
+                            
+              <div for="send-tab-amount" class="send-tab-max" id="send-tab-max" py-onclick="getMax()">Max</div>
+              
+
+
+
+              <div class="send-tab-button-container" id="send-tab-button-container">
+                <button class="send-tab-paste-button" id="send-tab-scan-button" py-onclick="startScanner()" type="button">Paste</button>
+                <button class="send-tab-send-button" id="send-tab-send-button" py-onclick="sendTx()" type="button">Send</button>
+                <button class="send-tab-zap-button" id="send-tab-zap-button" py-onclick="doZap()" type="button">Zap</button>
+                
+              </div>
+
+
+              <button class="send-tab-clear-button" id="send-tab-clear-button" py-onclick="clearSendTab()" type="button">Clear Form</button>
+
+            </div>
+
+            
+            
+            
+            <div class="receive-tab" id="receive-tab" style="display:none">
+              <br>
+              <h2 id="more-in-development-header">IN DEVELOPMENT</h2>
+              <br>
+              <img class="indev-icon" src="/icons/Tux_is_working_icon.png">
+              <br>
+              <ul>
+                <li id="more-li-1">WrappedGhost (Polygon)</li>
+                <li id="more-li-2">Anon Transaction Support</li>
+                <li id="more-li-3">Dex Trading Interface</li>
+              </ul>
+              <br>
+              <br>
+              <h3 id="more-stay-tuned">STAY TUNED</h3>
+              <br>
+              <a href="https://t.me/ghostcoinbymcafee" target="_blank">t.me/ghostcoinbymcafee</a>
+            </div>
+
+            <div class="menu-tab" id="menu-tab" style="display:none">
+              <div class="menu-tab-label" id="menu-tab-label">
+                Settings
+              </div>
+              
+              <div class="menu-tab-item-container" id="menu-tab-item-container">
+                <div class="menu-tab-item" id="menu-tab-item-lang">
+                  <div class="menu-tab-item-address-label" id="menu-tab-item-lang-label" py-onclick="expandSettings('menu-tab-item-lang')">Language</div>
+                
+                  <div class="lang-button-container" id="lang-button-container">
+
+                      <template id="lang-template">
+                        <label class="menu-tab-coldstake-radio-label">
+                            <span class="lang-option" id="lang-option"></span>
+                            <input class="coldstake-radio-button lang-radio-button" id="lang-radio-button" type="radio" name="lang-option" value="" onclick="langRadio(this)">
+                            <span class="checkmark"></span>
+                        </label>
+                      </template>
+
+                   </div>
+
+                </div>
+                <br>
+
+                <div class="menu-tab-item" id="menu-tab-item-address">
+                  <div class="menu-tab-item-address-label" id="menu-tab-item-address-label" py-onclick="expandSettings('menu-tab-item-address')">Address</div>
+                  <div class="qr-code-standard" id="qr-code-standard">
+                    <img class="qr-code-standard-img" id="qr-code-standard-img" py-onclick="copyAddr('std')" src="" alt=""><br>
+                    <figcaption id="qr-code-standard-text" py-onclick="copyAddr('std')"></figcaption>
+                  </div>
+              
+                  <div class="qr-code-standard" id="qr-code-256">
+                    <img class="qr-code-standard-img" id="qr-code-256-img" py-onclick="copyAddr(256)" src="" alt=""><br>
+                    <figcaption id="qr-code-256-text" py-onclick="copyAddr(256)"></figcaption>
+                  </div>
+                  <button class="new-address-button-standard" id="new-address-button-standard" py-onclick="getNewAddr('std')" disabled>New Standard Address</button>
+                  <button class="new-address-button-standard" id="new-address-button-256" py-onclick="getNewAddr(256)" disabled>New 256 bit Address</button>
+                  
+                  <h1 class="addr-list-used-text" id="addr-list-used-text">Used Addresses</h1>
+                  <div class="addr-list-used" id="addr-list-used">
+                    <template id="used-addr-template">
+                      <div class="addr-list-used-item" id="addr-list-used-item"></div>
+                    </template>
+
+                  </div>
+
+                </div>
+                <br>
+                <div class="menu-tab-item" id="menu-tab-item-coldstake">
+                  <div class="menu-tab-item-coldstake-label" id="menu-tab-item-coldstake-label" py-onclick="expandSettings('menu-tab-item-coldstake')">Coldstaking</div>
+                  <br>
+                  
+                    <label class="menu-tab-coldstake-radio-label">
+                      <span class="coldstake-pool-option" id="coldstake-pool-option-disabled">Disabled</span>
+                      <input id="coldstake-pool-option-disabled" type="radio" name="coldstake-pool-option" value="disabled" onclick="poolRadio(this)">
+                      <span class="checkmark"></span>
+                    </label>
+                    
+                    <div class="pool-button-container" id="pool-button-container">
+                      <template id="coldstake-pool-template">
+                        <label class="menu-tab-coldstake-radio-label">
+                            <span class="coldstake-pool-option" id="coldstake-pool-option"></span>
+                            <input class="coldstake-radio-button" id="coldstake-radio-button" type="radio" name="coldstake-pool-option" value="" onclick="poolRadio(this)">
+                            <span class="checkmark"></span>
+                            <br>
+                        </label>
+                      </template>
+                    </div>
+                    <br>
+
+                    <label class="menu-tab-coldstake-radio-label">
+                        <span class="coldstake-pool-option" id="coldstake-pool-option-custom">Custom</span>
+                        <input id="coldstake-pool-option-custom" type="radio" name="coldstake-pool-option" value="custom" onclick="poolRadio(this)">
+                        <span class="checkmark"></span>
+                    </label>
+
+
+                  <br>
+                  <input class="custom-pool-input" id="custom-pool-input" type="text" name="" value="" py-paste="pasteCSAddr()" disabled>
+                  <br>
+                  <br>
+                  <button class="new-address-button-standard" id="pool-stats-button" py-onclick="getPoolStats()">Pool Stats</button>
+                  <br>
+                  <h3 class="pool-spend-addr-text" id="pool-spend-addr-text">Spend Address</h3>
+                  <div class="pool-spend-addr" id="pool-spend-addr" py-onclick="copyCsSpendAddr()">
+                  </div>
+                  <br>
+                  <button class="new-address-button-standard" id="new-cs-spend-button" py-onclick="spendAddrSelection()">Set Spend Address</button>
+                  <template id="new-cs-address">
+                        <label class="menu-tab-coldstake-radio-label">
+                            <span class="cs-address" id="cs-address"></span>
+                            <input class="coldstake-radio-button new-cs-address-button" id="new-cs-address-button" type="radio" name="cs-address" value="" onclick="csAddrRadio(this)">
+                            <span class="checkmark"></span>
+                        </label>
+                      </template>
+                </div>
+                <br>
+                <div class="menu-tab-item" id="menu-tab-item-agvr">
+                  <div class="menu-tab-item-agvr-label" id="menu-tab-item-agvr-label" py-onclick="expandSettings('menu-tab-item-agvr')">AGVR</div>
+                  <br>
+                  
+                  <div class="current-vet-addr-container" id="current-vet-addr-container" style="display:none;">
+                    <h3 class="current-vet-addr-label" id="current-vet-addr-label">Active</h3>
+
+                    <div class="current-vet-addr-text" id="current-vet-addr-text">
+                      <template id="current-vet-addr-template">
+                        <div class="addr-current-vet-item" id="addr-current-vet-item"></div>
+                      </template>
+                    </div>
+                  </div>
+
+                  <br>
+                  <div class="pending-vet-addr-container" id="pending-vet-addr-container" style="display:none;">
+                    <h3 class="pending-vet-addr-label" id="pending-vet-addr-label">Pending</h3>
+                    <table class="pending-vet-table" id="pending-vet-table">
+                      
+                      <template class="pending-vet-template" id="pending-vet-template">
+                        <tr class="pending-vet-row" id="pending-vet-row">
+                          <td class="pending-vet-addr" id="pending-vet-addr">
+                          </td>
+                          
+                          <td class="blocks-togo" id="blocks-togo">
+                          </td>
+                        </tr>
+                      </template>
+                      
+                      <tr>
+                        <th></th>
+                        <th>To Go</th>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+                <br>
+                <div class="menu-tab-item" id="menu-tab-item-fiat">
+                  <div class="menu-tab-item-coldstake-label" id="menu-tab-item-fiat-label" py-onclick="expandSettings('menu-tab-item-fiat')">Fiat</div>
+
+                  <div class="fiat-button-container" id="fiat-button-container">
+
+                      <template id="fiat-template">
+                        <label class="menu-tab-coldstake-radio-label">
+                            <span class="fiat-option" id="fiat-option"></span>
+                            <input class="coldstake-radio-button fiat-radio-button" id="fiat-radio-button" type="radio" name="fiat-option" value="" onclick="fiatRadio(this)">
+                            <span class="checkmark"></span>
+                        </label>
+                      </template>
+
+                   </div>
+                </div>
+
+                <br>
+                <div class="menu-tab-item" id="menu-tab-item-explorer">
+                  <div class="menu-tab-item-coldstake-label" id="menu-tab-item-explorer-label" py-onclick="expandSettings('menu-tab-item-explorer')">Explorer</div>
+                  
+
+                  <label class="menu-tab-coldstake-radio-label">
+                      <span class="coldstake-pool-option">Myghost.org</span>
+                      <input id="myghost" type="radio" name="explorer-option" value="myghost" onclick="explorerRadio(this)">
+                      <span class="checkmark"></span>
+                  </label>
+
+                  <label class="menu-tab-coldstake-radio-label">
+                      <span class="coldstake-pool-option">Ghostscan.io</span>
+                      <input id="ghostscan" type="radio" name="explorer-option" value="ghostscan" onclick="explorerRadio(this)">
+                      <span class="checkmark"></span>
+                  </label>
+
+                  <br>
+                </div>
+                <br>
+                <div class="menu-tab-item" id="menu-tab-item-version">
+                  <div class="menu-tab-item-coldstake-label" id="menu-tab-item-version-label" py-onclick=""></div>
+                </div>
+
+              </div>
+
+            </div>
+            
+          </div>
+        </div>
+      </section>
+
+
+    </div>
+
+    
+
+
+  </body>
+  </html>

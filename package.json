@@ -1,0 +1,26 @@
+{
+  "name": "pyscript",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bitcore-lib.js",
+  "scripts": {
+    "start": "webpack --mode production -w"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@bitauth/libauth": "^1.19.1",
+    "assert": "^2.0.0",
+    "bitcore-mnemonic": "git+https://github.com/bleach86/bitcore-mnemonic.git",
+    "buffer": "^6.0.3",
+    "crypto": "^1.0.1",
+    "ghost-bitcore-lib": "git+https://github.com/ghost-coin/ghost-bitcore-lib.git",
+    "ghost-bitcore-message": "git+https://github.com/bleach86/ghost-bitcore-message.git",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^4.10.0"
+  },
+  "browser": {
+    "crypto": false
+  }
+}
