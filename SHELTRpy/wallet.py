@@ -21,8 +21,6 @@ GAP_LIMIT = 20
 
 class ImportWallet:
     def __init__(self, wallet: dict):
-        message = Element("loading-message")
-        message.element.innerText = "Generating wallet..."
         self.wallet = wallet
         self.wallet['receiving_addresses'] = self.getAddresses(0, 1)
         self.wallet['lookahead_addresses'] = self.getAddresses(1, GAP_LIMIT + 1)

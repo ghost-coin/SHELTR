@@ -156,12 +156,19 @@ def check_words_event(e):
         Element("import-word-button").element.disabled = True
 
 
-def importWords():
+async def importWords():
     global mnemonic
+    Element("import-word-box").element.style.display = "none"
+    Element("loading").element.style.display = "block"
+
+    loading_message.element.innerText = "Generating master keys..."  
+    await asyncio.sleep(0.1)
+    
     words = import_word_text.element.value.strip()
     mnemonic = importMnemonic(words.lower())
+    Element("loading").element.style.display = "none"
     Element("set-password").element.style.display = "block"
-    Element("import-word-box").element.style.display = "none"
+    await asyncio.sleep(0.1)
     import_word_text.clear()
 
 
@@ -544,6 +551,9 @@ async def genWallet():
     Element("new-pass-button").element.disabled = True
     Element("loading").element.style.display = "block"
     Element("set-password").element.style.display = "none"
+
+    loading_message.element.innerText = "Generating wallet..."
+    await asyncio.sleep(0.1)
     
     wallet = {
         "receiving_addresses": [],
@@ -618,14 +628,13 @@ async def enter_password_event(e):
 
 
 async def runWallet(TOKEN):
-    message = Element("loading-message")
     
     global txHistory
     if txHistory:
         return
     Element("content-body").element.style.display = "none"
     Element("loading").element.style.display = "block"
-    message.element.innerText = "Initializing wallet..."
+    loading_message.element.innerText = "Initializing wallet..."
     await asyncio.sleep(0.05)
 
     wallet = Wallet(TOKEN, api)
@@ -635,9 +644,9 @@ async def runWallet(TOKEN):
     
     
     await txHistory.task_runner()
-    message.element.innerText = "Gathering transaction history..."
+    loading_message.element.innerText = "Gathering transaction history..."
     await txHistory.processTxHistory()
-    message.element.innerText = "Processing transactions..."
+    loading_message.element.innerText = "Processing transactions..."
     await displayTx()
     nodes = await api.getNodes()
     random.shuffle(nodes)
@@ -1029,7 +1038,7 @@ async def setPoolOption(selected):
             if await stripURL(pool['website']) == selected:
                 txHistory.wallet.coldstaking['poolKey'] = pool['public_key']
                 break
-                
+
     await txHistory.walletCls.flushWallet()
 
 
@@ -1940,6 +1949,8 @@ async def doTranslation(requested_locale=None):
 if __name__ == "__main__":
     txHistory = None
     spendCSOut = False
+    loading_message = Element("loading-message")
+    loading_message.element.innerText = "Initializing SHELTR..."
     asyncio.gather(doTranslation(), api.getNodes())
     browserName = browserType()
     #print(browserName)

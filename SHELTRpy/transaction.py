@@ -41,6 +41,7 @@ class TransactionHistory:
         self.unmatureUTXO = []
         self.currentVet = []
         self.pendingVet = []
+        self.pendingTxOut = None
         self.showMessage = False
         self.showTxInfo = ''
 
