@@ -1029,7 +1029,7 @@ async def setPoolOption(selected):
             if await stripURL(pool['website']) == selected:
                 txHistory.wallet.coldstaking['poolKey'] = pool['public_key']
                 break
-    print(txHistory.wallet.coldstaking)
+                
     await txHistory.walletCls.flushWallet()
 
 
