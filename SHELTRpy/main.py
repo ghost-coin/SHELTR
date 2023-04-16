@@ -22,7 +22,7 @@ import re, math, random
 
 import SHELTRpy.ecc
 
-VERSION = "v0.1b"
+VERSION = "v0.2b"
 
 api = Api()
 
@@ -618,11 +618,14 @@ async def enter_password_event(e):
 
 
 async def runWallet(TOKEN):
+    message = Element("loading-message")
+    
     global txHistory
     if txHistory:
         return
     Element("content-body").element.style.display = "none"
     Element("loading").element.style.display = "block"
+    message.element.innerText = "Initializing wallet..."
     await asyncio.sleep(0.05)
 
     wallet = Wallet(TOKEN, api)
@@ -632,7 +635,9 @@ async def runWallet(TOKEN):
     
     
     await txHistory.task_runner()
+    message.element.innerText = "Gathering transaction history..."
     await txHistory.processTxHistory()
+    message.element.innerText = "Processing transactions..."
     await displayTx()
     nodes = await api.getNodes()
     random.shuffle(nodes)
@@ -983,6 +988,7 @@ async def setPoolOption(selected):
     if selected == 'disabled':
         txHistory.wallet.coldstaking['isActive'] = False
         txHistory.wallet.coldstaking['guiSelection'] = selected
+        txHistory.wallet.coldstaking['poolKey'] = ""
         menu_tab_coldstake_label.element.style.color = '#fafafa'
         custom_pool_input.element.disabled = True
         custom_pool_input.element.style.backgroundColor = "#232728"
@@ -1023,7 +1029,7 @@ async def setPoolOption(selected):
             if await stripURL(pool['website']) == selected:
                 txHistory.wallet.coldstaking['poolKey'] = pool['public_key']
                 break
-
+    print(txHistory.wallet.coldstaking)
     await txHistory.walletCls.flushWallet()
 
 
@@ -1831,8 +1837,8 @@ async def doTranslation(requested_locale=None):
     Element("new-address-button-256").element.innerText = locale['new-address-button-256']
     Element("addr-list-used-text").element.innerText = locale['addr-list-used-text']
     Element("menu-tab-item-coldstake-label").element.innerText = locale['menu-tab-item-coldstake-label']
-    Element("coldstake-pool-option-disabled").element.innerText = locale["coldstake-pool-option-disabled"]
-    Element("coldstake-pool-option-custom").element.innerText = locale['coldstake-pool-option-custom']
+    Element("coldstake-pool-option-disabled-label").element.innerText = locale["coldstake-pool-option-disabled"]
+    Element("coldstake-pool-option-custom-label").element.innerText = locale['coldstake-pool-option-custom']
     Element("pool-spend-addr-text").element.innerText = locale['pool-spend-addr-text']
     Element("current-vet-addr-label").element.innerText = locale['current-vet-addr-label']
     Element("pending-vet-addr-label").element.innerText = locale['pending-vet-addr-label']

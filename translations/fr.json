@@ -34,7 +34,7 @@
     "continue-words": "Copier et continuer",
     "words-disclamer": "Ces mots sont utilisés pour restaurer votre portefeuille. Notez-les et rangez-les dans un endroit sûr.",
     "import-word-button": "Soumettre",
-    "import-messsage": "Veuillez entrer votre mnémonique dans la zone de texte.<br>Il s'agit d'un ensemble unique de 12 mots anglais.",
+    "import-messsage": "Veuillez entrer votre mnémonique dans la zone de texte.<br>Il s'agit d'un ensemble unique de 12-24 mots anglais.",
     "new-pass-input": "Nouveau mot de passe",
     "new-pass-confirm": "Confirmez le mot de passe",
     "new-pass-button": "Soumettre",

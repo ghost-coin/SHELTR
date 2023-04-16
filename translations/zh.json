@@ -34,7 +34,7 @@
     "continue-words": "複製並繼續",
     "words-disclamer": "這些話是用來恢復你的錢包的。 將它們寫下來，並存放在安全的地方。",
     "import-word-button": "提交",
-    "import-messsage": "請在文本框中輸入您的助記符。<br>這是一組獨一無二的 12 個英文單詞。",
+    "import-messsage": "請在文本框中輸入您的助記符。<br>這是一組獨一無二的 12-24 個英文單詞。",
     "new-pass-input": "新密碼",
     "new-pass-confirm": "確認密碼",
     "new-pass-button": "提交",

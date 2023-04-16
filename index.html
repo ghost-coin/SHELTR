@@ -99,6 +99,7 @@
       <img class="logo" id="logo" src="icons/sheltr-loading-transparant.png"/>
       <label id="dupe-tab-warning" for="logo" style="display:none;">Running instance of SHELTR detected<br>Please colse other tabs.</label>
       <label id="no-wasm-tab-warning" for="logo" style="display:none;">WASM not supported by your browser<br>Please update your browser and try again.</label>
+      <label class="loading-message" id="loading-message" for="logo" style="color:#fafafa;"></label>
       <noscript>
         <label id="dupe-tab-warning" for="logo" style="display:block;opacity: 1">JavaScript Must be enabled for SHELTR to run.</label>
       </noscript>
@@ -391,7 +392,7 @@
                   <br>
                   
                     <label class="menu-tab-coldstake-radio-label">
-                      <span class="coldstake-pool-option" id="coldstake-pool-option-disabled">Disabled</span>
+                      <span class="coldstake-pool-option" id="coldstake-pool-option-disabled-label">Disabled</span>
                       <input id="coldstake-pool-option-disabled" type="radio" name="coldstake-pool-option" value="disabled" onclick="poolRadio(this)">
                       <span class="checkmark"></span>
                     </label>
@@ -409,7 +410,7 @@
                     <br>
 
                     <label class="menu-tab-coldstake-radio-label">
-                        <span class="coldstake-pool-option" id="coldstake-pool-option-custom">Custom</span>
+                        <span class="coldstake-pool-option" id="coldstake-pool-option-custom-label">Custom</span>
                         <input id="coldstake-pool-option-custom" type="radio" name="coldstake-pool-option" value="custom" onclick="poolRadio(this)">
                         <span class="checkmark"></span>
                     </label>
