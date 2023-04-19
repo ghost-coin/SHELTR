@@ -98,6 +98,9 @@ class TransactionHistory:
         if not txid:
             return None
 
+        if txid in self.knownTXID and not ignoreExisting:
+            return None
+
         rawTx = await self.api.getTx(txid)
         
         if rawTx == "Not found":
