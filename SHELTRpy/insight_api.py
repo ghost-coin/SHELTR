@@ -262,7 +262,7 @@ class Api:
     async def pingNode(self, url):
         start = time.time()
         try:
-            response = await request(f"{url}/ping/", method="GET", headers=self.headers)
+            response = await request(f"{url}/ping/", method="POST", headers=self.headers)
         except:
             return (url, -1)
         return (url, time.time() - start)
