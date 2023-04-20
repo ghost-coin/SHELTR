@@ -1137,7 +1137,7 @@ async def insertLang():
         lang_name = lang_html.select(".lang-option")
         lang_button = lang_html.select(".lang-radio-button")
 
-        lang_name.element.innerText = f'{lang_item.upper()} {lang_choice["flags"][lang_item]}'
+        lang_name.element.innerHTML = f'{lang_item.upper()} {lang_choice["flags"][lang_item]}'
         lang_button.element.value = f"{lang_item}"
 
         if lang == lang_item:
