@@ -34,7 +34,7 @@
     "continue-words": "Copiar y continuar",
     "words-disclamer": "Estas palabras se utilizan para restaurar su billetera. Anótelos y guárdelos en un lugar seguro.",
     "import-word-button": "Entregar",
-    "import-messsage": "Ingrese su mnemónico en el cuadro de texto.<br>Este es un conjunto único de 12 palabras en inglés.",
+    "import-messsage": "Ingrese su mnemónico en el cuadro de texto.<br>Este es un conjunto único de 12-24 palabras en inglés.",
     "new-pass-input": "Nueva contraseña",
     "new-pass-confirm": "Confirmar contraseña",
     "new-pass-button": "Entregar",

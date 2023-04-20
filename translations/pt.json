@@ -34,7 +34,7 @@
     "continue-words": "Copiar e continuar",
     "words-disclamer": "Essas palavras são usadas para restaurar sua carteira. Anote-os e guarde-os em um local seguro.",
     "import-word-button": "Aceder",
-    "import-messsage": "Insira seu mnemônico na caixa de texto.<br>Este é um conjunto exclusivo de 12 palavras em inglês.",
+    "import-messsage": "Insira seu mnemônico na caixa de texto.<br>Este é um conjunto exclusivo de 12-24 palavras em inglês.",
     "new-pass-input": "Nova Senha",
     "new-pass-confirm": "Confirme sua senha",
     "new-pass-button": "Aceder",

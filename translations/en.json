@@ -34,7 +34,7 @@
     "continue-words": "Copy & Continue",
     "words-disclamer": "These words are used to restore your wallet. Write them down, and store them in a safe place.",
     "import-word-button": "Submit",
-    "import-messsage": "Please input your mnemonic into the text box.<br>This is unique set of 12 english words.",
+    "import-messsage": "Please input your mnemonic into the text box.<br>This is a unique set of 12-24 english words.",
     "new-pass-input": "New Password",
     "new-pass-confirm": "Confirm password",
     "new-pass-button": "Submit",

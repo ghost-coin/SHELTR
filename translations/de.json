@@ -34,7 +34,7 @@
     "continue-words": "Kopieren und fortfahren",
     "words-disclamer": "Diese Wörter werden verwendet, um Ihren Wallet wiederherzustellen. Schreiben Sie sie auf und bewahren Sie sie an einem sicheren Ort auf.",
     "import-word-button": "Einreichen",
-    "import-messsage": "Bitte geben Sie Ihre Seed-Mnemonik in das Textfeld ein.<br>Dies ist ein einzigartiger Satz von 12 englischen Wörtern.",
+    "import-messsage": "Bitte geben Sie Ihre Seed-Mnemonik in das Textfeld ein.<br>Dies ist ein einzigartiger Satz von 12-24 englischen Wörtern.",
     "new-pass-input": "Neues Passwort",
     "new-pass-confirm": "Passwort bestätigen",
     "new-pass-button": "Einreichen",

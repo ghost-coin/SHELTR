@@ -34,7 +34,7 @@
     "continue-words": "복사 및 계속",
     "words-disclamer": "이 단어는 지갑을 복원하는 데 사용됩니다. 기록하고 안전한 장소에 보관하십시오.",
     "import-word-button": "제출하다",
-    "import-messsage": "텍스트 상자에 니모닉을 입력하십시오.<br>이것은 12개의 영어 단어로 구성된 독특한 세트입니다.",
+    "import-messsage": "텍스트 상자에 니모닉을 입력하십시오.<br>이것은 12-24개의 영어 단어로 구성된 독특한 세트입니다.",
     "new-pass-input": "새 비밀번호",
     "new-pass-confirm": "비밀번호 확인",
     "new-pass-button": "제출하다",

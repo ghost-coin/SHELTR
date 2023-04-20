@@ -34,7 +34,7 @@
     "continue-words": "コピーして続行",
     "words-disclamer": "これらの単語は、ウォレットを復元するために使用されます。 それらを書き留めて、安全な場所に保管してください。",
     "import-word-button": "送信",
-    "import-messsage": "テキストボックスにニーモニックを入力してください。<br>これは、12 の英単語のユニークなセットです。",
+    "import-messsage": "テキストボックスにニーモニックを入力してください。<br>これは、12-24 の英単語のユニークなセットです。",
     "new-pass-input": "新しいパスワード",
     "new-pass-confirm": "パスワードを認証する",
     "new-pass-button": "送信",

@@ -22,7 +22,7 @@ import re, math, random
 
 import SHELTRpy.ecc
 
-VERSION = "v0.1b"
+VERSION = "v0.3.1b"
 
 api = Api()
 
@@ -156,12 +156,19 @@ def check_words_event(e):
         Element("import-word-button").element.disabled = True
 
 
-def importWords():
+async def importWords():
     global mnemonic
+    Element("import-word-box").element.style.display = "none"
+    Element("loading").element.style.display = "block"
+
+    loading_message.element.innerText = "Generating master keys..."  
+    await asyncio.sleep(0.1)
+    
     words = import_word_text.element.value.strip()
     mnemonic = importMnemonic(words.lower())
+    Element("loading").element.style.display = "none"
     Element("set-password").element.style.display = "block"
-    Element("import-word-box").element.style.display = "none"
+    await asyncio.sleep(0.1)
     import_word_text.clear()
 
 
@@ -544,6 +551,9 @@ async def genWallet():
     Element("new-pass-button").element.disabled = True
     Element("loading").element.style.display = "block"
     Element("set-password").element.style.display = "none"
+
+    loading_message.element.innerText = "Generating wallet..."
+    await asyncio.sleep(0.1)
     
     wallet = {
         "receiving_addresses": [],
@@ -618,11 +628,13 @@ async def enter_password_event(e):
 
 
 async def runWallet(TOKEN):
+    
     global txHistory
     if txHistory:
         return
     Element("content-body").element.style.display = "none"
     Element("loading").element.style.display = "block"
+    loading_message.element.innerText = "Initializing wallet..."
     await asyncio.sleep(0.05)
 
     wallet = Wallet(TOKEN, api)
@@ -632,7 +644,9 @@ async def runWallet(TOKEN):
     
     
     await txHistory.task_runner()
+    loading_message.element.innerText = "Gathering transaction history..."
     await txHistory.processTxHistory()
+    loading_message.element.innerText = "Processing transactions..."
     await displayTx()
     nodes = await api.getNodes()
     random.shuffle(nodes)
@@ -983,6 +997,7 @@ async def setPoolOption(selected):
     if selected == 'disabled':
         txHistory.wallet.coldstaking['isActive'] = False
         txHistory.wallet.coldstaking['guiSelection'] = selected
+        txHistory.wallet.coldstaking['poolKey'] = ""
         menu_tab_coldstake_label.element.style.color = '#fafafa'
         custom_pool_input.element.disabled = True
         custom_pool_input.element.style.backgroundColor = "#232728"
@@ -1122,7 +1137,7 @@ async def insertLang():
         lang_name = lang_html.select(".lang-option")
         lang_button = lang_html.select(".lang-radio-button")
 
-        lang_name.element.innerText = f'{lang_item.upper()} {lang_choice["flags"][lang_item]}'
+        lang_name.element.innerHTML = f'{lang_item.upper()} {lang_choice["flags"][lang_item]}'
         lang_button.element.value = f"{lang_item}"
 
         if lang == lang_item:
@@ -1831,8 +1846,8 @@ async def doTranslation(requested_locale=None):
     Element("new-address-button-256").element.innerText = locale['new-address-button-256']
     Element("addr-list-used-text").element.innerText = locale['addr-list-used-text']
     Element("menu-tab-item-coldstake-label").element.innerText = locale['menu-tab-item-coldstake-label']
-    Element("coldstake-pool-option-disabled").element.innerText = locale["coldstake-pool-option-disabled"]
-    Element("coldstake-pool-option-custom").element.innerText = locale['coldstake-pool-option-custom']
+    Element("coldstake-pool-option-disabled-label").element.innerText = locale["coldstake-pool-option-disabled"]
+    Element("coldstake-pool-option-custom-label").element.innerText = locale['coldstake-pool-option-custom']
     Element("pool-spend-addr-text").element.innerText = locale['pool-spend-addr-text']
     Element("current-vet-addr-label").element.innerText = locale['current-vet-addr-label']
     Element("pending-vet-addr-label").element.innerText = locale['pending-vet-addr-label']
@@ -1934,6 +1949,8 @@ async def doTranslation(requested_locale=None):
 if __name__ == "__main__":
     txHistory = None
     spendCSOut = False
+    loading_message = Element("loading-message")
+    loading_message.element.innerText = "Initializing SHELTR..."
     asyncio.gather(doTranslation(), api.getNodes())
     browserName = browserType()
     #print(browserName)

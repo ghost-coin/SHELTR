@@ -13,6 +13,8 @@ from types import SimpleNamespace
 
 from binascii import unhexlify
 
+from pyscript import Element
+
 
 GAP_LIMIT = 20
 

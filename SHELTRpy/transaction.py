@@ -13,6 +13,8 @@ from SHELTRpy.ghostCrypto import password_decrypt, password_encrypt
 from pyodide.ffi import to_js
 import js, pyodide
 
+from pyscript import Element
+
 GAP_LIMIT = 20
 
 
@@ -39,9 +41,7 @@ class TransactionHistory:
         self.unmatureUTXO = []
         self.currentVet = []
         self.pendingVet = []
-
         self.pendingTxOut = None
-
         self.showMessage = False
         self.showTxInfo = ''
 
@@ -96,6 +96,9 @@ class TransactionHistory:
     async def processNetworkTx(self, txid, ignoreExisting=False):
 
         if not txid:
+            return None
+
+        if txid in self.knownTXID and not ignoreExisting:
             return None
 
         rawTx = await self.api.getTx(txid)
@@ -437,6 +440,9 @@ class Util:
     async def checkGap(self):
         truth_or_dare = [True, False, "change"]
         isChange = False
+        message = Element("loading-message")
+        message.element.innerText = "Checking for new addresses..."
+        new_address_found = 0
         
         for truthieness in truth_or_dare:
             if truthieness == "change":
@@ -460,6 +466,8 @@ class Util:
                                     addrIdx = self.wallet.change_lookahead_addresses.index(addr)
                                     
                                     if addr not in self.wallet.used_addresses:
+                                        new_address_found += 1
+                                        message.element.innerText = f"{new_address_found} new addresses found..."
                                         self.wallet.used_addresses.append(addr)
 
                                     if addrIdx > topIndex:
@@ -467,6 +475,8 @@ class Util:
 
                                 if addr in self.wallet.change_addresses:
                                     if addr not in self.wallet.used_addresses:
+                                        new_address_found += 1
+                                        message.element.innerText = f"{new_address_found} new addresses found..."
                                         self.wallet.used_addresses.append(addr)
                             else:
                                 if is256:
@@ -474,6 +484,8 @@ class Util:
                                         addrIdx = self.wallet.lookahead_addresses_256.index(addr)
                                         
                                         if addr not in self.wallet.used_addresses:
+                                            new_address_found += 1
+                                            message.element.innerText = f"{new_address_found} new addresses found..."
                                             self.wallet.used_addresses.append(addr)
                                             
                                         if addrIdx > topIndex:
@@ -481,12 +493,16 @@ class Util:
 
                                     if addr in self.wallet.receiving_addresses_256:
                                         if addr not in self.wallet.used_addresses:
+                                            new_address_found += 1
+                                            message.element.innerText = f"{new_address_found} new addresses found..."
                                             self.wallet.used_addresses.append(addr)
                                 else:
                                     if addr in self.wallet.lookahead_addresses:
                                         addrIdx = self.wallet.lookahead_addresses.index(addr)
                                         
                                         if addr not in self.wallet.used_addresses:
+                                            new_address_found += 1
+                                            message.element.innerText = f"{new_address_found} new addresses found..."
                                             self.wallet.used_addresses.append(addr)
 
                                         if addrIdx > topIndex:
@@ -494,6 +510,8 @@ class Util:
 
                                     if addr in self.wallet.receiving_addresses:
                                         if addr not in self.wallet.used_addresses:
+                                            new_address_found += 1
+                                            message.element.innerText = f"{new_address_found} new addresses found..."
                                             self.wallet.used_addresses.append(addr)
                             
 
@@ -528,7 +546,8 @@ class Util:
                             diffAmt = GAP_LIMIT - len(self.wallet.lookahead_addresses)
                             self.wallet.lookahead_addresses += await self.getAddresses(len(self.wallet.master_address_list),
                                                                                     (len(self.wallet.master_address_list) + diffAmt))
-
+            
+        message.element.innerText = f"{new_address_found} total new addresses found."
 
     async def getAddresses(self, startIdx, endIdx, is256=False, isChange=False):
         addresses = []

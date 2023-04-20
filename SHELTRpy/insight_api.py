@@ -11,9 +11,11 @@ def timeoutPing(func):
     @wraps(func)
     async def decorator(*args, **kwargs):
         try:
-            results = await asyncio.wait_for(func(*args, **kwargs), timeout=1)
+            results = await asyncio.wait_for(func(*args, **kwargs), timeout=10)
             return results
         except asyncio.TimeoutError:
+            return (args[1], -1)
+        except Exception as e:
             return (args[1], -1)
     return decorator
 
@@ -27,7 +29,7 @@ def timeout(func):
         
         while True:
             try:
-                results = await asyncio.wait_for(func(*args, **kwargs), timeout=5)
+                results = await asyncio.wait_for(func(*args, **kwargs), timeout=30)
                 return results
             except asyncio.TimeoutError:
                 nodes = await args[0].getNodes()
@@ -260,7 +262,7 @@ class Api:
     async def pingNode(self, url):
         start = time.time()
         try:
-            response = await request(f"{url}/ping/", method="GET", headers=self.headers)
+            response = await request(f"{url}/ping/", method="POST", headers=self.headers)
         except:
             return (url, -1)
         return (url, time.time() - start)
