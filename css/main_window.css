@@ -449,7 +449,29 @@ display: none;
 }
 
 .fiat-button-container {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
     padding: 20px;
+
+}
+
+.lang-button-container {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    padding: 10px;
+    
+}
+
+.lang-button-container .menu-tab-coldstake-radio-label{
+    margin: 5px;
+}
+
+.fiat-button-container .menu-tab-coldstake-radio-label{
+    margin: 5px;
 }
 
 .pool-spend-addr {
@@ -989,6 +1011,11 @@ display: none;
    
 } */
 
+.flag{
+    height: 14px;
+    width: auto;
+}
+
 @media screen and (max-width: 685px) and (min-height: 870px){
     .header-logo{
         top: -40px;
@@ -1026,10 +1053,6 @@ display: none;
         background: #000;
     }
     
-    .fiat-button-container {
-        padding-left: 30px;
-        padding-right: 30px;
-    }
 
     .fiat-option {
         font-family: 'Courier New', Courier, monospace;
@@ -1065,11 +1088,6 @@ display: none;
     
     ::-webkit-scrollbar-corner {
         background: #000;
-    }
-    
-    .fiat-button-container {
-        padding-left: 30px;
-        padding-right: 30px;
     }
 
 }
