@@ -1011,10 +1011,6 @@ display: none;
    
 } */
 
-.flag{
-    height: 14px;
-    width: auto;
-}
 
 @media screen and (max-width: 685px) and (min-height: 870px){
     .header-logo{
