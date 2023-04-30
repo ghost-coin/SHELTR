@@ -22,7 +22,7 @@ import re, math, random
 
 import SHELTRpy.ecc
 
-VERSION = "v0.3.2b"
+VERSION = "v0.3.3b"
 
 api = Api()
 
@@ -1296,15 +1296,19 @@ async def toggleExtBal(isExtBal):
     bal_amt = Element("overview-balance-major")
     bal_ext = Element("overview-balance-extended")
 
+    history_label = Element("tx-history-label")
+
     if not isExtBal:
         bal_amt.element.style.display = "none"
         bal_label.element.style.display = "none"
 
         bal_ext.element.style.display = "inline-block"
+        history_label.element.style.display = "none"
     
     else:
         bal_amt.element.style.display = "block"
         bal_label.element.style.display = "block"
+        history_label.element.style.display = "block"
 
         bal_ext.element.style.display = "none"
 
@@ -1338,6 +1342,7 @@ async def newTx(txData):
     txData = txData.to_py()
     tryCount = 0
     isMine = False
+    isLookahead = False
 
     if txData['isCoinStake']:
         while True:
@@ -1357,9 +1362,13 @@ async def newTx(txData):
             isMine = True
         
         elif i in txHistory.wallet.lookahead_addresses + txHistory.wallet.lookahead_addresses_256 + txHistory.wallet.change_lookahead_addresses:
-            await asyncio.sleep(1)
-            await txHistory.task_runner()
             isMine = True
+            isLookahead = True
+    
+    if isLookahead:
+        await asyncio.sleep(1)
+        await txHistory.task_runner()
+
     if isMine:
 
         while True:
@@ -1548,9 +1557,8 @@ async def updateNextTxPage():
         return
 
     show_more.element.innerHTML = f'''{'<img class="down-arrow" style="cursor: pointer;" onclick="getNextTxPagejs()" src="icons/bottom-arrow.png">' if dif_tx else ''}
-    <span class="tx-count" style="cursor: pointer;" {'onclick="getNextTxPagejs()"' if dif_tx else ''}>{best_tx} / {total_tx} </span>{'<img class="down-arrow" style="cursor: pointer;" onclick="getNextTxPagejs()" src="icons/bottom-arrow.png">' if dif_tx else ''}'''
-
-
+    <span id="tx-count" class="tx-count" style="cursor: pointer;" {'onclick="getNextTxPagejs()"' if dif_tx else ''}>{best_tx} / {total_tx} </span>{'<img class="down-arrow" style="cursor: pointer;" onclick="getNextTxPagejs()" src="icons/bottom-arrow.png">' if dif_tx else ''}'''
+   
 
 async def txInfo(txid):
     tx = await txHistory.getTxByTXID(txid)
