@@ -6,6 +6,8 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
+import asyncio
+
 
 
 backend = default_backend()
@@ -18,7 +20,7 @@ def _derive_key(password: bytes, salt: bytes, iterations: int = iterations) -> b
         iterations=iterations, backend=backend)
     return b64e(kdf.derive(password))
 
-def password_encrypt(message: bytes, password: str, iterations: int = iterations) -> bytes:
+def _password_encrypt(message: bytes, password: str, iterations: int = iterations) -> bytes:
     salt = secrets.token_bytes(16)
     key = _derive_key(password.encode(), salt, iterations)
     return b64e(
@@ -29,7 +31,7 @@ def password_encrypt(message: bytes, password: str, iterations: int = iterations
         )
     )
 
-def password_decrypt(token: bytes, password: str) -> bytes:
+def _password_decrypt(token: bytes, password: str) -> bytes:
     decoded = b64d(token)
     salt, iter, token = decoded[:16], decoded[16:20], b64e(decoded[20:])
     iterations = int.from_bytes(iter, 'big')
@@ -38,3 +40,10 @@ def password_decrypt(token: bytes, password: str) -> bytes:
 
 def getToken():
     return secrets.token_urlsafe()
+
+async def password_encrypt(*args, **kwargs):
+    return await asyncio.to_thread(_password_encrypt, *args, **kwargs)
+
+async def password_decrypt(*args, **kwargs):
+    return await asyncio.to_thread(_password_decrypt, *args, **kwargs)
+    
