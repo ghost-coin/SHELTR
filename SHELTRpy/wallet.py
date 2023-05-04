@@ -57,11 +57,11 @@ class Wallet:
 
 
     async def getDecWallet(self):
-        wallet = json.loads(password_decrypt(str(await getData("wallet").then(lambda x: x)), self.token))
+        wallet = json.loads(await password_decrypt(str(await getData("wallet").then(lambda x: x)), self.token))
         return wallet
 
     async def flushWallet(self):
-        await storeData("wallet", str(password_encrypt(str(json.dumps(vars(self.wallet))).encode(), self.token), "utf-8"))
+        await storeData("wallet", str(await password_encrypt(str(json.dumps(vars(self.wallet))).encode(), self.token), "utf-8"))
 
     def checkIntegrity(self):
         for index, addr in enumerate(self.wallet.receiving_addresses):

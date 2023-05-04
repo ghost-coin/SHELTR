@@ -274,3 +274,4 @@ class MyHTMLParser(HTMLParser):
     
     def handle_data(self, data):
         self.apiData.append(data)
+        

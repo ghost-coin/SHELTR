@@ -22,7 +22,7 @@ import re, math, random
 
 import SHELTRpy.ecc
 
-VERSION = "v0.3.3b"
+VERSION = "v0.3.4b"
 
 api = Api()
 
@@ -257,7 +257,7 @@ async def doZap():
 
     inputDetails = TransactionInputs(txHistory, maxAmount, spendColdStake=spendCSOut, isZap=True, script=script)
 
-    privKeys = inputDetails.getPrivateKeys(password)
+    privKeys = await inputDetails.getPrivateKeys(password)
     
     outScript = txHistory.util.splitCsOutputs(inputDetails.amount, script)
 
@@ -369,7 +369,7 @@ async def sendTx():
     Element("confirm-send-button").element.disabled = True
     Element("confirm-send-button").element.style.opacity = "0.2"
     
-    privKeys = inputDetails.getPrivateKeys(password)
+    privKeys = await inputDetails.getPrivateKeys(password)
 
     csInfo = txHistory.wallet.coldstaking
 
@@ -522,7 +522,7 @@ async def setSpendCS():
 
 async def isValidPass(password):
     try:
-        token = str(password_decrypt(str(await getData("TOKEN").then(lambda x: x)), password))
+        token = str(await password_decrypt(str(await getData("TOKEN").then(lambda x: x)), password))
         return True
     except Exception as e:
         return False
@@ -566,12 +566,12 @@ async def genWallet():
         "change_master_address_list": [],
         "used_addresses": [],
         "master_xpub": str(mnemonic.xpub),
-        "master_xpriv": str(password_encrypt(str(mnemonic.xpriv).encode(), password_input.element.value)),
+        "master_xpriv": str(await password_encrypt(str(mnemonic.xpriv).encode(), password_input.element.value)),
         "xpub": str(mnemonic.derived_xpub),
-        "xpriv": str(password_encrypt(str(mnemonic.derived_xpriv).encode(), password_input.element.value)),
+        "xpriv": str(await password_encrypt(str(mnemonic.derived_xpriv).encode(), password_input.element.value)),
         "xpub_change": str(mnemonic.derived_xpub_change),
-        "xpriv_change": str(password_encrypt(str(mnemonic.derived_xpriv_change).encode(), password_input.element.value)),
-        "words": str(password_encrypt(str(mnemonic.words).encode(), password_input.element.value)),
+        "xpriv_change": str(await password_encrypt(str(mnemonic.derived_xpriv_change).encode(), password_input.element.value)),
+        "words": str(await password_encrypt(str(mnemonic.words).encode(), password_input.element.value)),
         "utxo": [],
         "totalBalance": 0,
         "unconfirmedBalance": 0,
@@ -585,8 +585,8 @@ async def genWallet():
     importWallet = ImportWallet(wallet)
     token = getToken()
 
-    await storeData("wallet", str(password_encrypt(json.dumps(vars(importWallet)['wallet']).encode(), token), "utf-8"))
-    await storeData("TOKEN", str(password_encrypt(token.encode(), password_input.element.value), "utf-8"))
+    await storeData("wallet", str(await password_encrypt(json.dumps(vars(importWallet)['wallet']).encode(), token), "utf-8"))
+    await storeData("TOKEN", str(await password_encrypt(token.encode(), password_input.element.value), "utf-8"))
     
     Element("loading").element.style.display = "none"
     Element("content-body").element.style.display = "flex"
@@ -604,7 +604,7 @@ async def checkPass():
         Element("pass-submit-button").element.disabled = False
         return False
     try:
-        token = str(password_decrypt(str(await getData("TOKEN").then(lambda x: x)), new_password_input.element.value))
+        token = str(await password_decrypt(str(await getData("TOKEN").then(lambda x: x)), new_password_input.element.value))
         new_password_input.clear()
         await asyncio.sleep(0.01)
 
@@ -648,7 +648,10 @@ async def runWallet(TOKEN):
     await txHistory.processTxHistory()
     loading_message.element.innerText = "Processing transactions..."
     await displayTx()
-    nodes = await api.getNodes()
+    
+    nodes = api.urls
+    if not nodes:
+        nodes = await api.getNodes()
     random.shuffle(nodes)
     txMonitor(to_js(nodes))
 
@@ -665,6 +668,7 @@ async def runWallet(TOKEN):
     #await api.getNodes()
     #print(wallet.wallet)
 
+    loading_message.element.innerText = "Populating the GUI..."
     await asyncio.gather(setAddrQrDisplay(), insertUsedAddresses(), insertPools(), insertVets(),
                         insertFiat(), checkExplorer(), insertLang(), clearSendTab())
     idleTimer()

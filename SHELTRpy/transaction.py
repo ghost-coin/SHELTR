@@ -381,14 +381,16 @@ class TransactionInputs:
 
         return utxoValue - estFee
 
-    def getPrivateKeys(self, password):
+    async def getPrivateKeys(self, password):
         privKeys = []
 
         if not password:
             return privKeys
 
-        extPrivKey = password_decrypt(self.wallet.xpriv[2:-1], password).decode("utf-8")
-        extPrivKeyChange = password_decrypt(self.wallet.xpriv_change[2:-1], password).decode("utf-8")
+        extPrivKey = await password_decrypt(self.wallet.xpriv[2:-1], password)
+        extPrivKey = extPrivKey.decode("utf-8")
+        extPrivKeyChange = await password_decrypt(self.wallet.xpriv_change[2:-1], password)
+        extPrivKeyChange = extPrivKeyChange.decode("utf-8")
 
         for txOut in self.inputs:
             addrIndex = self.util.getIndexByAddress(txOut['address'])
