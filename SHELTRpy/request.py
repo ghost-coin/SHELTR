@@ -1,8 +1,14 @@
 from pyodide.http import pyfetch, FetchResponse
 from typing import Optional, Any
 
-async def request(url: str, method: str = "GET", body: Optional[str] = None,
-                  headers: Optional[dict[str, str]] = None, **fetch_kwargs: Any) -> FetchResponse:
+
+async def request(
+    url: str,
+    method: str = "GET",
+    body: Optional[str] = None,
+    headers: Optional[dict[str, str]] = None,
+    **fetch_kwargs: Any
+) -> FetchResponse:
     """
     Async request function. Pass in Method and make sure to await!
     Parameters:
@@ -15,7 +21,10 @@ async def request(url: str, method: str = "GET", body: Optional[str] = None,
     Return:
         response: pyodide.http.FetchResponse = use with .status or await.json(), etc.
     """
-    kwargs = {"method": method, "mode": "cors"}  # CORS: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
+    kwargs = {
+        "method": method,
+        "mode": "cors",
+    }  # CORS: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
     if body and method not in ["GET", "HEAD"]:
         kwargs["body"] = body
     if headers:
