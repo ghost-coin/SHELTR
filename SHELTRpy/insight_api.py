@@ -62,7 +62,7 @@ class Api:
             "https://api.tuxprint.com",
             "https://api2.tuxprint.com",
             "https://socket.tuxprint.com:52555",
-            "https://api3.tuxprint.com",
+            # "https://api3.tuxprint.com",
         ]
 
     async def randomNode(self):
