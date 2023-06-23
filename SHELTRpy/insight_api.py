@@ -61,7 +61,7 @@ class Api:
         self.nodes = [
             "https://api.tuxprint.com",
             "https://api2.tuxprint.com",
-            "https://socket.tuxprint.com:52555",
+            "https://socket.tuxprint.com",
             "https://api3.tuxprint.com",
         ]
 
