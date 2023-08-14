@@ -46,7 +46,7 @@ import re, math, random
 
 import SHELTRpy.ecc
 
-VERSION = "v0.3.4b"
+VERSION = "v0.4.0b"
 
 api = Api()
 
@@ -2134,13 +2134,13 @@ async def doTranslation(requested_locale=None):
 
     # translations for the "more" tab
 
-    Element("more-in-development-header").element.innerText = locale[
-        "more-in-development-header"
-    ]
-    Element("more-li-1").element.innerText = locale["more-li-1"]
-    Element("more-li-2").element.innerText = locale["more-li-2"]
-    Element("more-li-3").element.innerText = locale["more-li-3"]
-    Element("more-stay-tuned").element.innerText = locale["more-stay-tuned"]
+    # Element("more-in-development-header").element.innerText = locale[
+    #     "more-in-development-header"
+    # ]
+    # Element("more-li-1").element.innerText = locale["more-li-1"]
+    # Element("more-li-2").element.innerText = locale["more-li-2"]
+    # Element("more-li-3").element.innerText = locale["more-li-3"]
+    # Element("more-stay-tuned").element.innerText = locale["more-stay-tuned"]
 
     # define confirms dict
 

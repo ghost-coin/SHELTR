@@ -20,17 +20,19 @@
 
     <script src="https://unpkg.com/html5-qrcode@2.3.2/html5-qrcode.min.js" type="text/javascript"></script>
     <link rel="stylesheet" href="/css/pyscript.css" />
-    <script defer src="https://pyscript.net/releases/2023.03.1/pyscript.js"></script>
-    <script defer src="/SHELTRjs/_bundle.js"></script>
+    <script defer src="https://pyscript.net/releases/2023.03.1/pyscript.min.js"></script>
+    <script defer src="/SHELTRjs/_bundle.js?v=1.0"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
     <script src="duplicate.js"></script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"
+        type="application/javascript"></script>
     
   
     <link rel="stylesheet" href="/css/words.css?v=1.0" />
     <link rel="stylesheet" href="/css/style.css?v=1.0" />
-    <link rel="stylesheet" href="/css/main_window.css?v=1.0.1" />
+    <link rel="stylesheet" href="/css/main_window.css?v=1.0.2" />
 
     <py-config>
       terminal = false
@@ -92,6 +94,9 @@
             }
         });
     </script>
+
+
+
 
   </head>
     <body>
@@ -325,7 +330,7 @@
             
             <div class="receive-tab" id="receive-tab" style="display:none">
               <br>
-              <h2 id="more-in-development-header">IN DEVELOPMENT</h2>
+              <!-- <h2 id="more-in-development-header">IN DEVELOPMENT</h2>
               <br>
               <img class="indev-icon" src="/icons/Tux_is_working_icon.png">
               <br>
@@ -338,7 +343,21 @@
               <br>
               <h3 id="more-stay-tuned">STAY TUNED</h3>
               <br>
-              <a href="https://t.me/ghostcoinbymcafee" target="_blank">t.me/ghostcoinbymcafee</a>
+              <a href="https://t.me/ghostcoinbymcafee" target="_blank">t.me/ghostcoinbymcafee</a> -->
+              <iframe
+                src="https://app.uniswap.org/#/swap?outputCurrency=0xb5e0cfe1b4db501ac003b740665bf43192cc7853&chain=polygon&theme=dark"
+                allow="ethereum"
+                height="100%"
+                width="100%"
+                style="
+                  border: 0;
+                  margin: 0 auto;
+                  display: block;
+                  border-radius: 10px;
+                  max-width: 100%;
+                  min-width: 300px;
+                "
+              ></iframe>
             </div>
 
             <div class="menu-tab" id="menu-tab" style="display:none">
