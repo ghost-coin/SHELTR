@@ -62,6 +62,7 @@ class Api:
             "https://api.tuxprint.com",
             "https://api2.tuxprint.com",
             "https://socket.tuxprint.com",
+            "https://socket2.tuxprint.com",
             "https://api3.tuxprint.com",
         ]
 
