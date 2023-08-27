@@ -198,9 +198,6 @@ async def importWords():
 
     passphrase = Element("words-passphrase").element.value
 
-    print(use_legacy)
-    print(passphrase)
-
     loading_message.element.innerText = "Generating master keys..."
     await asyncio.sleep(0.1)
 
