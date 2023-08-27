@@ -59,23 +59,13 @@ isValidMnemonic = function (words) {
   return Mnemonic.isValid(words);
 };
 
-importMnemonic = function (words) {
+importMnemonic = function (words, legacy_derive, passphrase) {
 
   var code = new Mnemonic(words);
-  var x = code.toHDPrivateKey();
+  var x = code.toHDPrivateKey(passphrase);
   var hdPublicKey = x.hdPublicKey;
 
-  var hdPrivateKey = bitcore.HDPrivateKey.fromSeed(bitcore.crypto.Hash.sha512hmac(Buffer.from("Bitcoin seed 6969"), Buffer.from("This is fun! yeee eye ye")));
-
-  //console.log(hdPrivateKey);
-
-  console.log(ethers.Wallet.fromMnemonic(words));
-
-  //console.log(bitcore.crypto.Hash.sha256(bitcore.crypto.Hash.sha512hmac(Buffer.from("Bitcoin seed"), code.toSeed())).toString("hex"));
-
-  //address(bitcore.crypto.Hash.sha512hmac(Buffer.from("Bitcoin seed"), Buffer.from("This is fun!")).toString("hex"));
-
-  var derived = deriveAccount(x)
+  var derived = deriveAccount(x, legacy_derive)
 
   return {
     "xpriv": x, "xpub": hdPublicKey, "words": words, "derived_xpriv": derived.derived_xpriv, "derived_xpub": derived.derived_xpub,
@@ -84,11 +74,16 @@ importMnemonic = function (words) {
 
 };
 
-deriveAccount = function (xpriv) {
+deriveAccount = function (xpriv, legacy_derive) {
   var hdPrivateKey = new bitcore.HDPrivateKey(xpriv);
 
-  var derivedXpriv = hdPrivateKey.deriveChild("m/44'/531'/0'").deriveChild(0);
-  var derivedXpriv_change = hdPrivateKey.deriveChild("m/44'/531'/0'").deriveChild(1);
+  if (legacy_derive){
+    var derivedXpriv = hdPrivateKey.deriveChild("m/44'/44'/0'").deriveChild(0);
+    var derivedXpriv_change = hdPrivateKey.deriveChild("m/44'/44'/0'").deriveChild(1);
+  } else {
+    var derivedXpriv = hdPrivateKey.deriveChild("m/44'/531'/0'").deriveChild(0);
+    var derivedXpriv_change = hdPrivateKey.deriveChild("m/44'/531'/0'").deriveChild(1);
+  }
 
   return {
     "derived_xpriv": derivedXpriv, "derived_xpub": derivedXpriv.hdPublicKey,

@@ -46,7 +46,7 @@ import re, math, random
 
 import SHELTRpy.ecc
 
-VERSION = "v0.4.0b"
+VERSION = "v0.5.0b"
 
 api = Api()
 
@@ -194,11 +194,18 @@ async def importWords():
     Element("import-word-box").element.style.display = "none"
     Element("loading").element.style.display = "block"
 
+    use_legacy = Element("legacy_derive").element.checked
+
+    passphrase = Element("words-passphrase").element.value
+
+    print(use_legacy)
+    print(passphrase)
+
     loading_message.element.innerText = "Generating master keys..."
     await asyncio.sleep(0.1)
 
     words = import_word_text.element.value.strip()
-    mnemonic = importMnemonic(words.lower())
+    mnemonic = importMnemonic(words.lower(), use_legacy, passphrase)
     Element("loading").element.style.display = "none"
     Element("set-password").element.style.display = "block"
     await asyncio.sleep(0.1)
