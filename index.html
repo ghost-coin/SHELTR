@@ -20,17 +20,15 @@
 
     <script src="https://unpkg.com/html5-qrcode@2.3.2/html5-qrcode.min.js" type="text/javascript"></script>
     <link rel="stylesheet" href="/css/pyscript.css" />
-    <script defer src="https://pyscript.net/releases/2023.03.1/pyscript.min.js"></script>
+    <script defer src="https://pyscript.net/releases/2023.05.1/pyscript.min.js"></script>
     <script defer src="/SHELTRjs/_bundle.js?v=1.0"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
     <script src="duplicate.js"></script>
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"
-        type="application/javascript"></script>
     
   
-    <link rel="stylesheet" href="/css/words.css?v=1.0" />
+    <link rel="stylesheet" href="/css/words.css?v=1.1" />
     <link rel="stylesheet" href="/css/style.css?v=1.0" />
     <link rel="stylesheet" href="/css/main_window.css?v=1.0.2" />
 
@@ -162,7 +160,7 @@
         <meter max="4" class="password-strength-meter" id="password-strength-meter"></meter>
         <div class="meter-text" id="meter-text"></div>
         <input class="new-pass-confirm" type="password" id="new-pass-confirm" placeholder="Confirm password" />
-        <button py-click="genWallet()" class="new-pass-button" id="new-pass-button" type="button" disabled>Submit</button>
+        <button py-click="asyncio.create_task(genWallet())" class="new-pass-button" id="new-pass-button" type="button" disabled>Submit</button>
       <div id="pass-warning" class="pass-warning">
       Choose a strong, yet memorable password.<br>
       This is not recoverable!
@@ -187,7 +185,7 @@
           </div>
 
           <div class="field-group">
-            <button py-click="checkPass()" id="pass-submit-button" class="py-button" type="button" >Load Wallet</button>
+            <button py-click="asyncio.create_task(checkPass())" id="pass-submit-button" class="py-button" type="button" >Load Wallet</button>
           </div>
         </form>
 
@@ -202,7 +200,13 @@
       <form class="import-word-form" id="import-word-form">
         <img class="sheltr-logo-import" src="icons/SHELTR_LOGO.png"/>
         <textarea class="import-word-text" id="import-word-text" rows="3" cols="54" style="resize: none;" name="import-word"></textarea>
-        <button class="import-word-button" id="import-word-button" py-click="importWords()" type="button" disabled>Submit</button>    
+        <br>
+        <div class="check-container">
+          <input type="checkbox" class="legacy_derive" id="legacy_derive" name="legacy-derive" value="Bike" />
+          <label for="legacy_derive"> Use Legacy Derivation</label><br>
+        </div>
+        <input type="text" class="words-passphrase" id="words-passphrase" placeholder="Optional Extra Words"/>
+        <button class="import-word-button" id="import-word-button" py-click="asyncio.create_task(importWords())" type="button" disabled>Submit</button>    
         <div id="import-messsage" class="import-messsage">
         Please input your mnemonic into the text box.<br>
         This is unique set of 12 english words.
@@ -219,26 +223,26 @@
         
         <div class="primary-div-container" id="primary-div-container">
           <img class="header-logo" id="header-logo" src="icons/SHELTR_LOGO.png" alt="">
-          <img class="hamburger" id="hamburger" src="icons/hamburger-menu-icon.png" alt="" py-onclick="tabBrowser('menu-tab', None)">
+          <img class="hamburger" id="hamburger" src="icons/hamburger-menu-icon.png" alt="" py-click="asyncio.create_task(tabBrowser('menu-tab', None))">
           <div class="primary-div" id="primary-div">
             
             <div class="tab-button-container" id="tab-button-container">
-              <button class="overview-button" py-onclick="tabBrowser('overview-container', 'overview-button')" id="overview-button" type="button">Overview</button>
-              <button class="send-button" id="send-button" py-onclick="tabBrowser('send-tab', 'send-button')" type="button">Send</button>
-              <button class="receive-button" id="receive-button" py-onclick="tabBrowser('receive-tab', 'receive-button')" type="button">More</button>
+              <button class="overview-button" py-click="asyncio.create_task(tabBrowser('overview-container', 'overview-button'))" id="overview-button" type="button">Overview</button>
+              <button class="send-button" id="send-button" py-click="asyncio.create_task(tabBrowser('send-tab', 'send-button'))" type="button">Send</button>
+              <button class="receive-button" id="receive-button" py-click="asyncio.create_task(tabBrowser('receive-tab', 'receive-button'))" type="button">More</button>
             </div>
 
             <div class="overview-container" id="overview-container">
               <div class="overview-balance-display" id="overview-balance-display">
-                <div class="balance-label" id="balance-label" py-onclick="toggleExtBal(0)">
+                <div class="balance-label" id="balance-label" py-click="asyncio.create_task(toggleExtBal(0))">
                   Total Balance
                 </div>
                 
-                <div class="overview-balance-major" id="overview-balance-major" py-onclick="toggleExtBal(0)">
+                <div class="overview-balance-major" id="overview-balance-major" py-click="asyncio.create_task(toggleExtBal(0))">
                   <span class="balance-display" style="">0</span><span>.00</span>
                 </div>
 
-                <table class="overview-balance-extended" id="overview-balance-extended" py-onclick="toggleExtBal(1)" style="display:none">
+                <table class="overview-balance-extended" id="overview-balance-extended" py-click="asyncio.create_task(toggleExtBal(1))" style="display:none">
                   <tr> 
                     <td id="balance-spendable-text">Spendable:</td>
                     <td class="balance-amt" id="balance-spendable">0.00</td>
@@ -296,32 +300,32 @@
               <form>
                 
               
-              <input class="send-tab-input" id="send-tab-input" py-paste="pasteAddr()" placeholder="Recipient" type="text" name="" value="">
+              <input class="send-tab-input" id="send-tab-input" py-paste="asyncio.create_task(pasteAddr())" placeholder="Recipient" type="text" name="" value="">
               <input class="send-tab-amount" id="send-tab-amount" placeholder="Amount" type="number" min="0.00001" step="0.00000001" name="" value="">
               <input class="send-tab-password" id="send-tab-password" placeholder="Password" type="password" name="" value="">
               </form>
               
               <label class="send-tab-spendcs">
                 <span id="send-tab-toggle-label" class="toggle-label">Spend Coldstaking Outputs</span>
-                <input class="send-tab-checkbox" id="send-tab-checkbox" py-onclick="setSpendCS()" type="checkbox" unchecked>
+                <input class="send-tab-checkbox" id="send-tab-checkbox" py-click="asyncio.create_task(setSpendCS())" type="checkbox" unchecked>
                 <div class="toggle-switch"></div>
                 
               </label>
                             
-              <div for="send-tab-amount" class="send-tab-max" id="send-tab-max" py-onclick="getMax()">Max</div>
+              <div for="send-tab-amount" class="send-tab-max" id="send-tab-max" py-click="asyncio.create_task(getMax())">Max</div>
               
 
 
 
               <div class="send-tab-button-container" id="send-tab-button-container">
-                <button class="send-tab-paste-button" id="send-tab-scan-button" py-onclick="startScanner()" type="button">Paste</button>
-                <button class="send-tab-send-button" id="send-tab-send-button" py-onclick="sendTx()" type="button">Send</button>
-                <button class="send-tab-zap-button" id="send-tab-zap-button" py-onclick="doZap()" type="button">Zap</button>
+                <button class="send-tab-paste-button" id="send-tab-scan-button" py-click="asyncio.create_task(startScanner())" type="button">Paste</button>
+                <button class="send-tab-send-button" id="send-tab-send-button" py-click="asyncio.create_task(sendTx())" type="button">Send</button>
+                <button class="send-tab-zap-button" id="send-tab-zap-button" py-click="asyncio.create_task(doZap())" type="button">Zap</button>
                 
               </div>
 
 
-              <button class="send-tab-clear-button" id="send-tab-clear-button" py-onclick="clearSendTab()" type="button">Clear Form</button>
+              <button class="send-tab-clear-button" id="send-tab-clear-button" py-click="asyncio.create_task(clearSendTab())" type="button">Clear Form</button>
 
             </div>
 
@@ -367,7 +371,7 @@
               
               <div class="menu-tab-item-container" id="menu-tab-item-container">
                 <div class="menu-tab-item" id="menu-tab-item-lang">
-                  <div class="menu-tab-item-address-label" id="menu-tab-item-lang-label" py-onclick="expandSettings('menu-tab-item-lang')">Language</div>
+                  <div class="menu-tab-item-address-label" id="menu-tab-item-lang-label" py-click="asyncio.create_task(expandSettings('menu-tab-item-lang'))">Language</div>
                 
                   <div class="lang-button-container" id="lang-button-container">
 
@@ -385,18 +389,18 @@
                 <br>
 
                 <div class="menu-tab-item" id="menu-tab-item-address">
-                  <div class="menu-tab-item-address-label" id="menu-tab-item-address-label" py-onclick="expandSettings('menu-tab-item-address')">Address</div>
+                  <div class="menu-tab-item-address-label" id="menu-tab-item-address-label" py-click="asyncio.create_task(expandSettings('menu-tab-item-address'))">Address</div>
                   <div class="qr-code-standard" id="qr-code-standard">
-                    <img class="qr-code-standard-img" id="qr-code-standard-img" py-onclick="copyAddr('std')" src="" alt=""><br>
-                    <figcaption id="qr-code-standard-text" py-onclick="copyAddr('std')"></figcaption>
+                    <img class="qr-code-standard-img" id="qr-code-standard-img" py-click="asyncio.create_task(copyAddr('std'))" src="" alt=""><br>
+                    <figcaption id="qr-code-standard-text" py-click="asyncio.create_task(copyAddr('std'))"></figcaption>
                   </div>
               
                   <div class="qr-code-standard" id="qr-code-256">
-                    <img class="qr-code-standard-img" id="qr-code-256-img" py-onclick="copyAddr(256)" src="" alt=""><br>
-                    <figcaption id="qr-code-256-text" py-onclick="copyAddr(256)"></figcaption>
+                    <img class="qr-code-standard-img" id="qr-code-256-img" py-click="asyncio.create_task(copyAddr(256))" src="" alt=""><br>
+                    <figcaption id="qr-code-256-text" py-click="asyncio.create_task(copyAddr(256))"></figcaption>
                   </div>
-                  <button class="new-address-button-standard" id="new-address-button-standard" py-onclick="getNewAddr('std')" disabled>New Standard Address</button>
-                  <button class="new-address-button-standard" id="new-address-button-256" py-onclick="getNewAddr(256)" disabled>New 256 bit Address</button>
+                  <button class="new-address-button-standard" id="new-address-button-standard" py-click="asyncio.create_task(getNewAddr('std'))" disabled>New Standard Address</button>
+                  <button class="new-address-button-standard" id="new-address-button-256" py-click="asyncio.create_task(getNewAddr(256))" disabled>New 256 bit Address</button>
                   
                   <h1 class="addr-list-used-text" id="addr-list-used-text">Used Addresses</h1>
                   <div class="addr-list-used" id="addr-list-used">
@@ -409,7 +413,7 @@
                 </div>
                 <br>
                 <div class="menu-tab-item" id="menu-tab-item-coldstake">
-                  <div class="menu-tab-item-coldstake-label" id="menu-tab-item-coldstake-label" py-onclick="expandSettings('menu-tab-item-coldstake')">Coldstaking</div>
+                  <div class="menu-tab-item-coldstake-label" id="menu-tab-item-coldstake-label" py-click="asyncio.create_task(expandSettings('menu-tab-item-coldstake'))">Coldstaking</div>
                   <br>
                   
                     <label class="menu-tab-coldstake-radio-label">
@@ -438,16 +442,16 @@
 
 
                   <br>
-                  <input class="custom-pool-input" id="custom-pool-input" type="text" name="" value="" py-paste="pasteCSAddr()" disabled>
+                  <input class="custom-pool-input" id="custom-pool-input" type="text" name="" value="" py-paste="asyncio.create_task(pasteCSAddr())" disabled>
                   <br>
                   <br>
-                  <button class="new-address-button-standard" id="pool-stats-button" py-onclick="getPoolStats()">Pool Stats</button>
+                  <button class="new-address-button-standard" id="pool-stats-button" py-click="asyncio.create_task(getPoolStats())">Pool Stats</button>
                   <br>
                   <h3 class="pool-spend-addr-text" id="pool-spend-addr-text">Spend Address</h3>
-                  <div class="pool-spend-addr" id="pool-spend-addr" py-onclick="copyCsSpendAddr()">
+                  <div class="pool-spend-addr" id="pool-spend-addr" py-click="asyncio.create_task(copyCsSpendAddr())">
                   </div>
                   <br>
-                  <button class="new-address-button-standard" id="new-cs-spend-button" py-onclick="spendAddrSelection()">Set Spend Address</button>
+                  <button class="new-address-button-standard" id="new-cs-spend-button" py-click="asyncio.create_task(spendAddrSelection())">Set Spend Address</button>
                   <template id="new-cs-address">
                         <label class="menu-tab-coldstake-radio-label">
                             <span class="cs-address" id="cs-address"></span>
@@ -458,7 +462,7 @@
                 </div>
                 <br>
                 <div class="menu-tab-item" id="menu-tab-item-agvr">
-                  <div class="menu-tab-item-agvr-label" id="menu-tab-item-agvr-label" py-onclick="expandSettings('menu-tab-item-agvr')">AGVR</div>
+                  <div class="menu-tab-item-agvr-label" id="menu-tab-item-agvr-label" py-click="asyncio.create_task(expandSettings('menu-tab-item-agvr'))">AGVR</div>
                   <br>
                   
                   <div class="current-vet-addr-container" id="current-vet-addr-container" style="display:none;">
@@ -495,7 +499,7 @@
                 </div>
                 <br>
                 <div class="menu-tab-item" id="menu-tab-item-fiat">
-                  <div class="menu-tab-item-coldstake-label" id="menu-tab-item-fiat-label" py-onclick="expandSettings('menu-tab-item-fiat')">Fiat</div>
+                  <div class="menu-tab-item-coldstake-label" id="menu-tab-item-fiat-label" py-click="asyncio.create_task(expandSettings('menu-tab-item-fiat'))">Fiat</div>
 
                   <div class="fiat-button-container" id="fiat-button-container">
 
@@ -512,7 +516,7 @@
 
                 <br>
                 <div class="menu-tab-item" id="menu-tab-item-explorer">
-                  <div class="menu-tab-item-coldstake-label" id="menu-tab-item-explorer-label" py-onclick="expandSettings('menu-tab-item-explorer')">Explorer</div>
+                  <div class="menu-tab-item-coldstake-label" id="menu-tab-item-explorer-label" py-click="asyncio.create_task(expandSettings('menu-tab-item-explorer'))">Explorer</div>
                   
 
                   <label class="menu-tab-coldstake-radio-label">
@@ -531,7 +535,7 @@
                 </div>
                 <br>
                 <div class="menu-tab-item" id="menu-tab-item-version">
-                  <div class="menu-tab-item-coldstake-label" id="menu-tab-item-version-label" py-onclick=""></div>
+                  <div class="menu-tab-item-coldstake-label" id="menu-tab-item-version-label" py-click=""></div>
                 </div>
 
               </div>
