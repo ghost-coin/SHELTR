@@ -57,6 +57,15 @@ class Wallet:
         self.wallet = None
         self.api = api
 
+        self.eth_addr = None
+
+    
+    def get_eth_addr(self):
+        return self.eth_addr
+    
+    def set_eth_addr(self, addr):
+        self.eth_addr = addr
+
     async def initialize(self):
         self.dec_wallet = await self.getDecWallet()
         self.wallet = SimpleNamespace(**self.dec_wallet)

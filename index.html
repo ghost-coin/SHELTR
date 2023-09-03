@@ -2,7 +2,7 @@
 <html lang="en" class="notranslate" translate="no">
   <head>
     <meta charset="UTF-8" />
-    <meta name="robots" content="follow,index" />
+    <meta name="robots" content="nofollow" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SHELTR</title>
 
@@ -18,26 +18,37 @@
     <meta name="google" content="notranslate">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/css/flag-icon.min.css">
 
+    <script>
+    // Wait for the module to load before accessing its exports
+    window.addEventListener('load', async () => {
+      const { web3Modal, acct_info } = await import("/SHELTRjs/web3Connect.js");
+      window.web3Modal = web3Modal;
+
+      // Now you can use web3Modal here
+    });
+  </script>
+
     <script src="https://unpkg.com/html5-qrcode@2.3.2/html5-qrcode.min.js" type="text/javascript"></script>
     <link rel="stylesheet" href="/css/pyscript.css" />
     <script defer src="https://pyscript.net/releases/2023.05.1/pyscript.min.js"></script>
-    <script defer src="/SHELTRjs/_bundle.js?v=1.0"></script>
+    <script src="/SHELTRjs/_bundle.js?v=1.1"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
     <script src="duplicate.js"></script>
-    
-  
+
+        
+      
     <link rel="stylesheet" href="/css/words.css?v=1.2" />
     <link rel="stylesheet" href="/css/style.css?v=1.0" />
-    <link rel="stylesheet" href="/css/main_window.css?v=1.0.2" />
+    <link rel="stylesheet" href="/css/main_window.css?v=1.1" />
 
     <py-config>
       terminal = false
       packages = ["cryptography"]
       [[fetch]]
         files = ["/SHELTRpy/request.py", "/SHELTRpy/ghostCrypto.py", "/SHELTRpy/main.py", "/SHELTRpy/wallet.py", "/SHELTRpy/insight_api.py",
-                "/SHELTRpy/transaction.py", "/SHELTRpy/ecc.py", "/currencies.json"]
+                "/SHELTRpy/transaction.py", "/SHELTRpy/ecc.py", "/currencies.json", "/wghost_abi/abi.json"]
       [[fetch]]
         from = "https://raw.githubusercontent.com/ghost-coin/ghost-coldstaking-pools/master/"
         files = ['list.json']
@@ -93,7 +104,7 @@
         });
     </script>
 
-
+    
 
 
   </head>
@@ -333,35 +344,62 @@
             
             
             <div class="receive-tab" id="receive-tab" style="display:none">
-              <br>
-              <!-- <h2 id="more-in-development-header">IN DEVELOPMENT</h2>
-              <br>
-              <img class="indev-icon" src="/icons/Tux_is_working_icon.png">
-              <br>
-              <ul>
-                <li id="more-li-1">WrappedGhost (Polygon)</li>
-                <li id="more-li-2">Anon Transaction Support</li>
-                <li id="more-li-3">Dex Trading Interface</li>
-              </ul>
+              
+              <div class="web3-tab-label" id="web3-tab-label">
+                <w3m-core-button></w3m-core-button>
+              </div>
               <br>
               <br>
-              <h3 id="more-stay-tuned">STAY TUNED</h3>
+              
+              <div class="web3-tab-container" id="web3-tab-container">
+
+              <div class="spacer-div">
+                
+              </div>
+
               <br>
-              <a href="https://t.me/ghostcoinbymcafee" target="_blank">t.me/ghostcoinbymcafee</a> -->
-              <iframe
-                src="https://app.uniswap.org/#/swap?outputCurrency=0xb5e0cfe1b4db501ac003b740665bf43192cc7853&chain=polygon&theme=dark"
-                allow="ethereum"
-                height="100%"
-                width="100%"
-                style="
-                  border: 0;
-                  margin: 0 auto;
-                  display: block;
-                  border-radius: 10px;
-                  max-width: 100%;
-                  min-width: 300px;
-                "
-              ></iframe>
+              <br>
+              <div class="web3-tab-item" id="web3-tab-item-wrap">
+                <div class="web3-tab-item-address-label" id="web3-tab-item-wrap-label" py-click="asyncio.create_task(expandSettingsWeb3('web3-tab-item-wrap'))">Wrap</div>
+                <form class="wrap-button-container" id="wrap-button-container">
+                  <input class="wrap-input" id="wrap-input-amount" type="number" min="25" step="0.00000001" name="" value="" placeholder="Amount">
+                  <input class="wrap-input" id="wrap-input-password" type="password" name="" value="" placeholder="Password">
+                  <div class="web3-li-container">
+                    <li>Min send: 35 Ghost</li>
+                    <li>Min Wrap: 25 Ghost</li>
+                    <li>Bridge fee: 10 Ghost</li>
+                  </div>
+                  <br>
+                  <button class="wrap-button" id="wrap-send-button" py-click="asyncio.create_task(doWrapTx())" type="button"><svg class="wrap-icon" id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 115.01 122.88"><title>packing</title><path d="M55.76,77.39,17.15,57.13,7.18,69c14,7.38,26.9,14.35,40.86,21.73l7.72-13.29ZM68.43,0V21.44h10A4.16,4.16,0,0,1,82,23.11c1.86,2.8-.69,5.57-2.45,7.51-5,5.51-16.36,17.8-18.84,20.7a4.09,4.09,0,0,1-6.42,0c-2.56-3-14.55-15.86-19.32-21.23-1.65-1.86-3.7-4.4-2-7a4.16,4.16,0,0,1,3.56-1.67h10V0Zm-33,46.34L19.77,54.12,58.26,74.35,96.82,54.08l-16.54-8.6,2.7-3,15,7.74L108.85,40,92.36,31a12.58,12.58,0,0,0,1.24-4l20.63,10.9a1.35,1.35,0,0,1,.36.28,1.47,1.47,0,0,1,0,2.08l-13.25,13,12.83,15.36a1.49,1.49,0,0,1-.18,2.09,2.49,2.49,0,0,1-.3.19L102.14,77V99.88a1.49,1.49,0,0,1-.91,1.37L59.57,122.39a1.48,1.48,0,0,1-2.42-.33L15.41,101.2a1.48,1.48,0,0,1-.81-1.32V77.16L2.85,71a2.49,2.49,0,0,1-.3-.19,1.49,1.49,0,0,1-.18-2.09l12.5-15L.36,40A1.49,1.49,0,0,1,.5,37.88a1.81,1.81,0,0,1,.29-.19L21.73,25.84a15,15,0,0,0,.91,4.23L5.69,39.71l11.83,11,15.09-7.47,2.85,3.11ZM99.59,57.28,61.05,77.5l7.51,13.32,40.55-22L99.59,57.28Z"/></svg><span>Wrap</span></button>
+                  <button class="wrap-button" id="wrap-send-button-max" py-click="asyncio.create_task(doWrapTx(1))" type="button"><svg class="wrap-icon" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 118.61 122.88" style="enable-background:new 0 0 118.61 122.88" xml:space="preserve"><style type="text/css">.st0{fill-rule:evenodd;clip-rule:evenodd;}</style><g><path class="st0" d="M46.54,47.49l59.73,10.85l-43.75-30.2c-1.09,0.64-2.35,1.06-3.64,1.18c-1.37,0.13-2.79-0.06-4.09-0.64 L10.39,53.67v63.89l-9.67-1.65c-0.36-0.06-0.66-0.3-0.66-0.66v-59.8c-0.25-1.14,0.27-2.36,1.35-2.95l49.47-27.87 c-0.68-1.57-1.02-3.56-0.86-6.03l4.54,0.28c-0.12,1.84,0.12,3.18,0.58,4.12c0.77,0.15,1.47,0.62,1.87,1.36 c0.06,0.12,0.12,0.24,0.16,0.36c0.36,0.09,0.74,0.12,1.11,0.1c-0.43-0.85-0.39-1.91,0.19-2.75c0.54-0.79,1.43-1.2,2.33-1.17 c-0.16-0.19-0.34-0.34-0.51-0.49c-1.19-1.05-2.34-2.07-2.64-5.43l-0.01-0.01l-0.03-0.3c-2.18-0.87-3.73-3.01-3.73-5.5 c0-2.45,1.49-4.56,3.62-5.46V0h4.55v3.7c2.15,0.89,3.67,3,3.67,5.48c0,2.43-1.46,4.52-3.56,5.43c0.15,1.54,0.63,1.97,1.13,2.41 c0.9,0.8,1.83,1.62,2.45,3.7c0.33,1.12,0.35,2.19,0.12,3.16l51.57,35.59c0.53,0.37,0.89,0.89,1.06,1.47 c0.08,0.13,0.12,0.28,0.12,0.44v47.13c0,0.53-0.45,0.87-0.97,0.97l-71.11,13c-0.52,0.1-0.97-0.44-0.97-0.97V48.46 C45.57,47.93,46.01,47.4,46.54,47.49L46.54,47.49z M14.15,51.73l11.03-1.84v70.19l-11.03-1.88V51.73L14.15,51.73z M28.94,49.26 l12.65-2.11c0.36-0.06,0.66,0.3,0.66,0.66v74.39c0,0.36-0.3,0.72-0.66,0.66l-12.65-2.15V49.51V49.26L28.94,49.26z M115.19,64.71 v40.57h-1.25V64.71H115.19L115.19,64.71z M55.66,56.63v57.94H51.9v-59.1L55.66,56.63L55.66,56.63z M65.93,57.59v55.45h-3.44v-55.9 L65.93,57.59L65.93,57.59z M75.13,59.08v52.42H72v-53L75.13,59.08L75.13,59.08z M83.33,60.36v50.01h-2.82V59.7L83.33,60.36 L83.33,60.36z M90.89,61.57v47.4h-2.5V61.05L90.89,61.57L90.89,61.57z M97.87,62.45v45.45h-2.19V61.95L97.87,62.45L97.87,62.45z M104.12,63.59v43.34h-1.88V63L104.12,63.59L104.12,63.59z M109.94,64.57v41.45h-1.57V63.85L109.94,64.57L109.94,64.57z"/></g></svg><span>Wrap Max</span></button>
+                </form>
+              </div>
+              <br>
+              <br>
+              <div class="web3-tab-item" id="web3-tab-item-unwrap">
+                <div class="web3-tab-item-address-label" id="web3-tab-item-unwrap-label" py-click="asyncio.create_task(expandSettingsWeb3('web3-tab-item-unwrap'))">Unwrap</div>
+                <form class="wrap-button-container" id="wrap-button-container">
+                  <input class="wrap-input" id="unwrap-input-amount" type="number" min="25" step="0.00000001" name="" value="" placeholder="Amount">
+                  <div class="web3-li-container">
+                    <li>Min send: 35 wGHOST</li>
+                    <li>Min Unwrap: 25 wGHOST</li>
+                    <li>Bridge fee: 10 Ghost</li>
+                  </div>
+                  <br>
+                  <button class="wrap-button" id="unwrap-send-button" py-click="asyncio.create_task(doUnwrapTx())" type="button"><svg class="wrap-icon" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 122.88 117.85" style="enable-background:new 0 0 122.88 117.85" xml:space="preserve"><g><path d="M60.05,68.41L18.02,46.33L6.2,60.47c14.91,7.88,29.82,15.76,44.74,23.65L60.05,68.41L60.05,68.41z M63.3,23.47L21.12,44.39 L62.24,66l41.2-21.65L79.81,31.99L63.3,23.47L63.3,23.47z M15.89,43.95L0.39,29.27c-0.57-0.65-0.51-1.65,0.15-2.23 c0.09-0.08,0.2-0.15,0.3-0.21L47.95,0.18c0.75-0.4,1.68-0.12,2.1,0.61l13.23,18.22L72.1,2.49c0.41-0.77,1.36-1.07,2.13-0.66 l47.8,25.27c0.14,0.08,0.27,0.17,0.39,0.29c0.61,0.62,0.6,1.62-0.02,2.23l-14.16,13.91l13.71,16.41c0.56,0.67,0.47,1.67-0.2,2.22 c-0.1,0.08-0.21,0.15-0.32,0.21l-12.31,6.51v24.4c0,0.66-0.4,1.22-0.98,1.46l-44.51,22.59c-0.29,0.32-0.71,0.52-1.17,0.52 c-0.62,0-1.15-0.35-1.41-0.87l-44.59-22.3c-0.55-0.28-0.87-0.83-0.87-1.41L15.59,69L3.05,62.37c-0.11-0.06-0.22-0.13-0.32-0.21 c-0.67-0.56-0.76-1.56-0.2-2.22L15.89,43.95L15.89,43.95z M60.84,21.06L48.11,3.67L4.07,28.7L18.46,42.1L60.84,21.06L60.84,21.06z M65.75,21.08l14.75,7.72l25.08,12.93l13.07-12.84L74.15,5.35L65.75,21.08L65.75,21.08z M106.47,46.33L64.44,68.41l9.11,15.7 l44.74-23.65L106.47,46.33L106.47,46.33z"/></g></svg><span>Unwrap</span></button>
+                  <button class="wrap-button" id="unwrap-send-button-max" py-click="asyncio.create_task(doUnwrapTx(1))" type="button"><svg class="wrap-icon" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 118.61 122.88" style="enable-background:new 0 0 118.61 122.88" xml:space="preserve"><style type="text/css">.st0{fill-rule:evenodd;clip-rule:evenodd;}</style><g><path class="st0" d="M46.54,47.49l59.73,10.85l-43.75-30.2c-1.09,0.64-2.35,1.06-3.64,1.18c-1.37,0.13-2.79-0.06-4.09-0.64 L10.39,53.67v63.89l-9.67-1.65c-0.36-0.06-0.66-0.3-0.66-0.66v-59.8c-0.25-1.14,0.27-2.36,1.35-2.95l49.47-27.87 c-0.68-1.57-1.02-3.56-0.86-6.03l4.54,0.28c-0.12,1.84,0.12,3.18,0.58,4.12c0.77,0.15,1.47,0.62,1.87,1.36 c0.06,0.12,0.12,0.24,0.16,0.36c0.36,0.09,0.74,0.12,1.11,0.1c-0.43-0.85-0.39-1.91,0.19-2.75c0.54-0.79,1.43-1.2,2.33-1.17 c-0.16-0.19-0.34-0.34-0.51-0.49c-1.19-1.05-2.34-2.07-2.64-5.43l-0.01-0.01l-0.03-0.3c-2.18-0.87-3.73-3.01-3.73-5.5 c0-2.45,1.49-4.56,3.62-5.46V0h4.55v3.7c2.15,0.89,3.67,3,3.67,5.48c0,2.43-1.46,4.52-3.56,5.43c0.15,1.54,0.63,1.97,1.13,2.41 c0.9,0.8,1.83,1.62,2.45,3.7c0.33,1.12,0.35,2.19,0.12,3.16l51.57,35.59c0.53,0.37,0.89,0.89,1.06,1.47 c0.08,0.13,0.12,0.28,0.12,0.44v47.13c0,0.53-0.45,0.87-0.97,0.97l-71.11,13c-0.52,0.1-0.97-0.44-0.97-0.97V48.46 C45.57,47.93,46.01,47.4,46.54,47.49L46.54,47.49z M14.15,51.73l11.03-1.84v70.19l-11.03-1.88V51.73L14.15,51.73z M28.94,49.26 l12.65-2.11c0.36-0.06,0.66,0.3,0.66,0.66v74.39c0,0.36-0.3,0.72-0.66,0.66l-12.65-2.15V49.51V49.26L28.94,49.26z M115.19,64.71 v40.57h-1.25V64.71H115.19L115.19,64.71z M55.66,56.63v57.94H51.9v-59.1L55.66,56.63L55.66,56.63z M65.93,57.59v55.45h-3.44v-55.9 L65.93,57.59L65.93,57.59z M75.13,59.08v52.42H72v-53L75.13,59.08L75.13,59.08z M83.33,60.36v50.01h-2.82V59.7L83.33,60.36 L83.33,60.36z M90.89,61.57v47.4h-2.5V61.05L90.89,61.57L90.89,61.57z M97.87,62.45v45.45h-2.19V61.95L97.87,62.45L97.87,62.45z M104.12,63.59v43.34h-1.88V63L104.12,63.59L104.12,63.59z M109.94,64.57v41.45h-1.57V63.85L109.94,64.57L109.94,64.57z"/></g></svg><span>Unwrap Max</span></button>
+                </form>
+              </div>
+              <br>
+              <br>
+              <div class="web3-tab-item" id="web3-tab-item-swap" style="margin-bottom: 25px;">
+                <div class="web3-tab-item-address-label" id="web3-tab-item-swap-label" py-click="asyncio.create_task(expandSettingsWeb3('web3-tab-item-swap'))">Swap</div>
+              </div>
+              
+              
+              </div>
+            
+            
             </div>
 
             <div class="menu-tab" id="menu-tab" style="display:none">

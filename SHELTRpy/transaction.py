@@ -4,6 +4,7 @@ from SHELTRpy.request import request  # import our request function.
 import time
 from binascii import unhexlify
 import random
+from hashlib import sha256
 
 from js import (
     storeData,
@@ -44,6 +45,10 @@ class TransactionHistory:
             "menu-tab-item-fiat": False,
             "menu-tab-item-explorer": False,
             "menu-tab-item-lang": False,
+            "web3-tab-item-wrap": False,
+            "web3-tab-item-connect": False,
+            "web3-tab-item-unwrap": False,
+            "web3-tab-item-swap": False,
         }
 
         self.txHistory = []
@@ -151,6 +156,8 @@ class TransactionHistory:
         hasExternalOut = False
         hasScriptSendIn = False
         isPoolReward = False
+        isWrap = False
+        isUnwrap = False
 
         inAddr = {}
         outAddr = {}
@@ -182,6 +189,11 @@ class TransactionHistory:
                 outAddr[f"ANON-{vout['n']}"] = 0
             elif vout["type"] == "data":
                 outAddr[f"DATA-{vout['n']}"] = 0
+                
+                if vout['data_hex'].startswith("4742"):
+                    isWrap = True
+                elif vout['data_hex'].startswith("4743"):
+                    isUnwrap = True
 
             elif "addresses" in vout["scriptPubKey"]:
                 if vout["scriptPubKey"]["addresses"][0] in outAddr:
@@ -227,12 +239,21 @@ class TransactionHistory:
         elif isPoolReward:
             txType = "pool reward"
         elif ownedInput and not ownedOutput:
-            txType = "outgoing"
+            if isWrap:
+                txType = "wrap"
+            else:
+                txType = "outgoing"
         elif not ownedInput and ownedOutput:
-            txType = "incoming"
+            if isUnwrap:
+                txType = "unwrap"
+            else:
+                txType = "incoming"
         elif ownedInput and ownedOutput:
             if (transactedValue < 0) and hasExternalOut:
-                txType = "outgoing"
+                if isWrap:
+                    txType = "wrap"
+                else:
+                    txType = "outgoing"
             else:
                 if len(tx["vout"]) == hasOwnedCsOut:
                     txType = "zap"
@@ -477,6 +498,10 @@ class Util:
     def __init__(self, wallet, api):
         self.wallet = wallet
         self.api = api
+        self.lockingAddr = "GL7TgGhmxneMcGM5fyw4mxgYCfxBLSht7v"
+        self.feeAddr = "GLg18BGYSHeKgDkFosbStrpqETbbPdPNfF"
+        self.tokenAddr = "0x6e599da09133cAEeE5B7C123A61620d098E45C7b"
+        self.evmChainId = 80001
 
     async def lookAheadHasTX(self, is256, isChange):
         if isChange:
@@ -703,3 +728,27 @@ class Util:
                 break
 
         return outScript
+    
+    def prepare_data_out(self, maticAddr):
+        txPrefix = "a000000000000001041a"
+        hexData = self.remove_0x_prefix(maticAddr)
+        ver = bytes.fromhex("4742")
+        data = ver + bytes.fromhex(hexData)
+        checksum = self.sha256d_check(data)
+
+        return txPrefix + (data + checksum).hex()
+
+    def remove_0x_prefix(self, hexData):
+        return f"{int(hexData, 16):x}"
+
+    def sha256d_check(self, hexData):
+        m = sha256(sha256(hexData).digest())
+        return m.digest()[:4]
+
+    def verify_checksum(self, hexData):
+        hexData = bytes.fromhex(hexData)
+        data = hexData[:-4]
+        checksum = hexData[-4:]
+
+        return checksum == self.sha256d_check(data)
+    
