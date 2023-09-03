@@ -836,6 +836,7 @@ async def finalizeSendBurnTx(ghostAddr, amount):
         burn = await burn_wghost(str(ghostAddr), 
                                  int(amount),
                                  int(gas_fees["maxFeePerGas"]),
+                                 int(gas_fees['maxPriorityFeePerGas']),
                                  int(txHistory.util.evmChainId),
                                  str(txHistory.util.tokenAddr),
                                  to_js(abi, dict_converter=js.Object.fromEntries),

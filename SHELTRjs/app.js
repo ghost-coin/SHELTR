@@ -40,7 +40,7 @@ unsub = function () {
   web3Modal.subscribeModal((data) => setModalOpenState(data));
 };
 
-burn_wghost = async function(ghostAddr, amount, maxFeePerGas, chainID, tokenAddr, abi) {
+burn_wghost = async function(ghostAddr, amount, maxFeePerGas, maxPriorityFeePerGas, chainID, tokenAddr, abi) {
   
   const { hash } = await write_contract({
     address: tokenAddr,
@@ -50,6 +50,7 @@ burn_wghost = async function(ghostAddr, amount, maxFeePerGas, chainID, tokenAddr
     chainId: chainID,
     gas: 100000,
     maxFeePerGas: maxFeePerGas,
+    maxPriorityFeePerGas:maxPriorityFeePerGas,
 })
   return hash
 }
