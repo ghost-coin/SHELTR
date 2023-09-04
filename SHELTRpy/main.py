@@ -698,6 +698,13 @@ async def doUnwrapTx(do_max=0):
         send_button_send_tab.element.disabled = False
         zap_button.element.disabled = False
         return
+    
+    Element(
+        "message-box"
+    ).element.innerHTML = f"""<h3>{locale['processing-transaction']}</h3><p>{locale['menu-tab-item-address-label']}:</p><p class="message-box-secondary"></p><p>{locale['send-tab-amount']}:</p><p class="message-box-secondary"></p>
+                                                <button class="cancel-confirm-send-button" id="cancel-send-button" onclick="closeMessageBox()" type="button">{locale['cancel']}</button>"""
+
+    await showMessageBox()
 
     contract_info = {
         "address": evm_acct["address"],
@@ -724,6 +731,7 @@ async def doUnwrapTx(do_max=0):
     gas_fees = dict(gas_fees.object_entries().to_py())
 
     if matic_bal < gas_fees["gasPrice"]:
+        await closeMessageBox()
         js.console.log("web3 not connected!")
 
         js.alert("Not enough Matic for gas!")
@@ -737,6 +745,7 @@ async def doUnwrapTx(do_max=0):
 
     if not do_max:
         if not (amount_burn := amount_input.element.value):
+            await closeMessageBox()
             js.console.log("Invalid Amount")
             amount_input.element.style.borderColor = "#ff4d4d"
 
@@ -774,6 +783,7 @@ async def doUnwrapTx(do_max=0):
         amount_burn + BRIDGE_FEE < MIN_BRIDGE + BRIDGE_FEE
         or amount_burn + BRIDGE_FEE > wghost_bal
     ):
+        await closeMessageBox()
         js.console.log("Invalid Amount")
         amount_input.element.style.borderColor = "#ff4d4d"
 
@@ -786,12 +796,7 @@ async def doUnwrapTx(do_max=0):
         zap_button.element.disabled = False
         return
 
-    Element(
-        "message-box"
-    ).element.innerHTML = f"""<h3>{locale['processing-transaction']}</h3><p>{locale['menu-tab-item-address-label']}:</p><p class="message-box-secondary"></p><p>{locale['send-tab-amount']}:</p><p class="message-box-secondary"></p>
-                                                <button class="cancel-confirm-send-button" id="cancel-send-button" onclick="closeMessageBox()" type="button">{locale['cancel']}</button>"""
-
-    await showMessageBox()
+    
     bridge_fee = txHistory.util.convertFromSat(BRIDGE_FEE)
     burnFormat = txHistory.util.convertFromSat(amount_burn)
 
