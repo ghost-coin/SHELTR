@@ -56,7 +56,7 @@ import re, math, random
 
 import SHELTRpy.ecc
 
-VERSION = "v0.6.0b"
+VERSION = "v0.6.1b"
 
 api = Api()
 
@@ -419,6 +419,7 @@ async def sendTx():
     if inputDetails.fee + inputDetails.amount > (
         txHistory.wallet.totalBalance
         - (txHistory.wallet.coldstakingBalance if not spendCSOut else 0)
+        - txHistory.wallet.unconfirmedBalance
     ):
         js.console.log("Invalid Amount")
         await closeMessageBox()
@@ -595,6 +596,7 @@ async def doWrapTx(do_max=0):
     if inputDetails.fee + inputDetails.amount > (
         txHistory.wallet.totalBalance
         - (txHistory.wallet.coldstakingBalance if not spendCSOut else 0)
+        - txHistory.wallet.unconfirmedBalance
     ):
         js.console.log("Invalid Amount")
         await closeMessageBox()
@@ -872,6 +874,10 @@ async def finalizeSendTx():
 
     try:
         txid = await txHistory.api.sendTx(str(rawTx))
+
+        if txid == -1:
+            raise ValueError
+
     except Exception as e:
         message_box.element.innerHTML = f"""<h3>{locale['error']}</h3>
                                                    <br>
@@ -1011,13 +1017,25 @@ async def clearSendTab():
     password_input = Element("send-tab-password")
     checkbox = Element("send-tab-checkbox")
 
+    amt_wrap = Element("wrap-input-amount")
+    pass_wrap = Element("wrap-input-password")
+    amt_unwrap = Element("unwrap-input-amount")
+
     addr_input.clear()
     amount_input.clear()
     password_input.clear()
+    
+    amt_unwrap.clear()
+    amt_wrap.clear()
+    pass_wrap.clear()
 
     addr_input.element.style.borderColor = "#aeff00"
     amount_input.element.style.borderColor = "#aeff00"
     password_input.element.style.borderColor = "#aeff00"
+
+    amt_wrap.element.style.borderColor = "#aeff00"
+    pass_wrap.element.style.borderColor = "#aeff00"
+    amt_unwrap.element.style.borderColor = "#aeff00"
 
     checkbox.element.checked = False
     await setSpendCS()
