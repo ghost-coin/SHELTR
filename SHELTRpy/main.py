@@ -1337,23 +1337,6 @@ async def expandSettingsWeb3(setting):
     await expandSettings(setting)
 
 
-def set_eth_addr(addr):
-    conn_label = Element("web3-tab-item-connect-label").element
-
-    if not addr:
-        conn_label.style.color = "#fafafa"
-        conn_label.innerText = "Connect"
-    else:
-        conn_label.style.color = "#aeff00"
-        conn_label.innerText = "Connected"
-
-    txHistory.walletCls.set_eth_addr(addr)
-
-
-def get_eth_addr():
-    return txHistory.walletCls.get_eth_addr()
-
-
 async def checkExplorer():
     selection = txHistory.wallet.options["explorer"]
 
@@ -2390,16 +2373,6 @@ async def clickTXID(txid):
 
 
 async def main():
-    # checkBal =  {"address": '0x8Ed8f3E955A1D22165D905605467a3c75B292012', "token": '0xb5e0CFe1B4dB501aC003B740665bf43192cC7853', "chainId": 137}
-    # contract_thing = {"adderss": "0xb5e0CFe1B4dB501aC003B740665bf43192cC7853", "abi": to_js(abi, dict_converter=js.Object.fromEntries), "functionName": "name", "chainId": 137 }
-
-    # print(dir(read_contract))
-    # ready_boi = await read_contract(to_js(contract_thing, dict_converter=js.Object.fromEntries)).then(lambda d: d)
-    # hmm = await fetchBalancePoly(to_js(checkBal, dict_converter=js.Object.fromEntries)).then(lambda d: d)
-
-    # print(hmm.object_entries().to_py())
-
-    # print(ready_boi.object_entries())
     if not isDupe:
         Element("loading").element.style.display = "none"
 

@@ -46,7 +46,6 @@ class TransactionHistory:
             "menu-tab-item-explorer": False,
             "menu-tab-item-lang": False,
             "web3-tab-item-wrap": False,
-            "web3-tab-item-connect": False,
             "web3-tab-item-unwrap": False,
             "web3-tab-item-swap": False,
         }
