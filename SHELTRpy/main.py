@@ -856,12 +856,20 @@ async def finalizeSendBurnTx(ghostAddr, amount):
                                                 """
     except Exception as e:
         print(e)
-        message_box.element.innerHTML = f"""<h3>Fail</h3>
+        if "User rejected the transaction" in str(e):
+            message_box.element.innerHTML = f"""<h3>Fail</h3>
                                                    <br>
-                                                   <p>{e}</p>
+                                                   <p>User Rejected the Transaction</p>
                                                    <br>
                                                    <button class="cancel-confirm-send-button" id="cancel-send-button" onclick="closeMessageBox()" type="button">{locale['close']}</button>
                                                 """
+        else:
+            message_box.element.innerHTML = f"""<h3>Fail</h3>
+                                                    <br>
+                                                    <p>{e}</p>
+                                                    <br>
+                                                    <button class="cancel-confirm-send-button" id="cancel-send-button" onclick="closeMessageBox()" type="button">{locale['close']}</button>
+                                                    """
 
 
 
