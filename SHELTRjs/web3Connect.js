@@ -52,8 +52,6 @@ export const web3Modal = new Web3Modal(
   ethereumClient
 );
 
-export const unsubscribe = web3Modal.subscribeModal(newState => console.log(newState));
-
 export const acct_info = getAccount;
 export const fetchBalancePoly = fetchBalance;
 export const read_rontract = readContract;
@@ -63,6 +61,5 @@ export const fee_data = fetchFeeData;
 window.fetchBalancePoly = fetchBalance;
 window.acct_info = getAccount;
 window.read_contract = readContract;
-window.unsubscribe = unsubscribe;
 window.write_contract = writeContract;
 window.fee_data = fetchFeeData;
