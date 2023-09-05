@@ -1330,17 +1330,24 @@ async def expandSettings(setting):
 
 
 async def expandSettingsWeb3(setting):
+    isClosing = txHistory.settingsExpanded[setting]
+    web3_tabs = ["web3-tab-item-wrap", "web3-tab-item-unwrap", "web3-tab-item-swap"]
+
     await expandSettings(setting)
     await asyncio.sleep(0)
 
     fadeTime = 350
     offset = Element(f'{setting}').element.offsetTop
 
-    js.jQuery(f"#web3-tab-container").animate(
-            to_js({"scrollTop": offset}, dict_converter=js.Object.fromEntries),
-            fadeTime,
-        )
+    for web3_tab in web3_tabs:
+        if web3_tab != setting and txHistory.settingsExpanded[web3_tab]:
+            await expandSettings(web3_tab)
 
+    if not isClosing:
+        js.jQuery(f"#web3-tab-container").animate(
+                to_js({"scrollTop": offset}, dict_converter=js.Object.fromEntries),
+                fadeTime,
+            )
 
 
 async def checkExplorer():
