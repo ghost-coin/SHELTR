@@ -1329,21 +1329,15 @@ async def expandSettings(setting):
         await txHistory.setExpanded(setting, True)
 
 
-async def web3_state_change(data):
-    print(dict(data.object_entries().to_py()))
-
-
 async def expandSettingsWeb3(setting):
     await expandSettings(setting)
-
     await asyncio.sleep(0)
 
     fadeTime = 350
-
     offset = Element(f'{setting}').element.offsetTop
 
     js.jQuery(f"#web3-tab-container").animate(
-            to_js({"scrollTop": f"{offset}"}, dict_converter=js.Object.fromEntries),
+            to_js({"scrollTop": offset}, dict_converter=js.Object.fromEntries),
             fadeTime,
         )
 
