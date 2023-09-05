@@ -1336,6 +1336,18 @@ async def web3_state_change(data):
 async def expandSettingsWeb3(setting):
     await expandSettings(setting)
 
+    await asyncio.sleep(0)
+
+    fadeTime = 350
+
+    offset = Element(f'{setting}').element.offsetTop
+
+    js.jQuery(f"#web3-tab-container").animate(
+            to_js({"scrollTop": f"{offset}"}, dict_converter=js.Object.fromEntries),
+            fadeTime,
+        )
+
+
 
 async def checkExplorer():
     selection = txHistory.wallet.options["explorer"]
