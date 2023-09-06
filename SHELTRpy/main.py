@@ -101,11 +101,7 @@ async def parseScanner(addr):
     amount_input = Element("send-tab-amount")
 
     if validateAddress(addr):
-        addr_input.element.value = addr
-        await closeMessageBox()
-    elif isValidURI(addr):
-        uri = decodeURI(addr)
-        addr_input.element.value = uri.address
+        addr_input.element.value = addrexpand
         if uri.amount:
             amount_input.element.value = txHistory.util.convertFromSat(uri.amount)
         await closeMessageBox()
@@ -855,6 +851,8 @@ async def finalizeSendBurnTx(ghostAddr, amount):
                                                    <br>
                                                    <button class="cancel-confirm-send-button" id="cancel-send-button" onclick="closeMessageBox()" type="button">{locale['close']}</button>
                                                 """
+        await updateWghostBal(delay=15)
+
     except Exception as e:
         print(e)
         if "User rejected the transaction" in str(e):
@@ -1240,6 +1238,7 @@ async def runWallet(TOKEN):
 
     if web3_status["address"]:
         WEB3_CONNECTED = True
+        await updateWghostBal()
         
     sub_account()
 
@@ -1378,6 +1377,7 @@ async def web3_state_change(data):
     
     elif not WEB3_CONNECTED and conn_status:
         WEB3_CONNECTED = True
+        await updateWghostBal()
 
 async def insertVets():
     if txHistory.wallet.totalBalance < 2000000000000:
@@ -1983,6 +1983,7 @@ async def displayTx():
     await insertShowMoreTx()
 
     await updateBalanceDisplay()
+    await updateWghostBal()
 
 
 async def newTx(txData):
@@ -2038,6 +2039,7 @@ async def newTx(txData):
                 await processNewTx(networkTx)
                 await updateNextTxPage()
                 await updateBalanceDisplay()
+                await updateWghostBal()
                 break
             except Exception as e:
                 print(e)
@@ -2047,6 +2049,42 @@ async def newTx(txData):
                 else:
                     return
 
+
+async def updateWghostBal(delay=False):
+    global WEB3_CONNECTED
+
+    if not WEB3_CONNECTED:
+        return
+    
+    if delay:
+        await asyncio.sleep(delay)
+    
+    try:
+        evm_acct = dict(acct_info().object_entries().to_py())
+
+        contract_info = {
+        "address": evm_acct["address"],
+        "token": txHistory.util.tokenAddr,
+        "chainId": txHistory.util.evmChainId,
+        }
+        wghost_bal = await fetchBalancePoly(
+            to_js(contract_info, dict_converter=js.Object.fromEntries)
+        ).then(lambda d: d)
+        wghost_bal = dict(wghost_bal.object_entries().to_py())["value"]
+    except Exception as e:
+        print(e)
+
+    wghost_big_span = Element("wghost-bal-big")
+    wghost_small_span = Element("wghost-bal-small")
+
+    if not wghost_bal:
+        wghost_big_span.element.innerText = "0"
+        wghost_small_span.element.innerText = ".00"
+
+    else:
+        wghost_bal = str(round(txHistory.util.convertFromSat(wghost_bal), 8)).split('.')
+        wghost_big_span.element.innerText = f"{wghost_bal[0]}"
+        wghost_small_span.element.innerText = f".{wghost_bal[1]}"
 
 async def updateBalanceDisplay():
     await txHistory.walletCls.processUTXO()

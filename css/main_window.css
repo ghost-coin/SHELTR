@@ -74,8 +74,10 @@
     
 }
 
-.spacer-div {
+.wghost-bal {
     height: 50px;
+    text-align: center;
+    top: 15px;
 }
 
 .overview-container {
@@ -1052,7 +1054,7 @@ display: none;
         height: 71vh;
     }
 
-    .spacer-div {
+    .wghost-bal {
         height: 80px;
     }
 
