@@ -11,7 +11,7 @@ import { Web3Modal } from "https://unpkg.com/@web3modal/html@2.7.1";
 
 // 0. Import wagmi dependencies
 const { mainnet, polygon, avalanche, arbitrum, polygonMumbai } = WagmiCoreChains;
-const { configureChains, createConfig, fetchBalance, getAccount, readContract, writeContract, fetchFeeData } = WagmiCore;
+const { configureChains, createConfig, fetchBalance, getAccount, readContract, writeContract, fetchFeeData, watchAccount } = WagmiCore;
 
 // 1. Define chains
 const chains = [polygonMumbai];
@@ -48,18 +48,28 @@ export const web3Modal = new Web3Modal(
     WGhost: "/icons/wghost-32x32.png",
   },
   defaultChain: polygonMumbai,
+  metadata: {
+      name: 'SHELTR',
+      description: 'Ghost Coin Wallet',
+      url: 'https://ghostbyjohnmcafee.com',
+      icons: ['icons/android-chrome-192x192.png'],
+    },
   },
   ethereumClient
 );
+
 
 export const acct_info = getAccount;
 export const fetchBalancePoly = fetchBalance;
 export const read_rontract = readContract;
 export const write_contract = writeContract;
 export const fee_data = fetchFeeData;
+export const watch_account = watchAccount;
+
 
 window.fetchBalancePoly = fetchBalance;
 window.acct_info = getAccount;
 window.read_contract = readContract;
 window.write_contract = writeContract;
 window.fee_data = fetchFeeData;
+window.watch_account = watchAccount;

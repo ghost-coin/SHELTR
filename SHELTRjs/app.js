@@ -29,16 +29,22 @@ signMessage = function (privKey, msg) {
 let modalOpen = false;
 
 function setModalOpenState(data) {
-  pything = pyscript.runtime.globals.get("web3_state_change");
-
   modalOpen = data.open;
+}
+
+function setAccountState (data) {
+  pything = pyscript.runtime.globals.get("web3_state_change");
 
   pything(data);
 }
 
-unsub = function () {
+sub_modal = function () {
   web3Modal.subscribeModal((data) => setModalOpenState(data));
 };
+
+sub_account = function () {
+  watch_account((account) => setAccountState(account));
+}
 
 burn_wghost = async function(ghostAddr, amount, maxFeePerGas, maxPriorityFeePerGas, chainID, tokenAddr, abi) {
   

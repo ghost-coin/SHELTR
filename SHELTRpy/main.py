@@ -33,7 +33,8 @@ from js import (
     fetchBalancePoly,
     read_contract,
     web3Modal,
-    unsub,
+    sub_modal,
+    sub_account,
     generateWrapTx,
     burn_wghost,
     finalizeSendBurnTxjs,
@@ -56,7 +57,7 @@ import re, math, random
 
 import SHELTRpy.ecc
 
-VERSION = "v0.6.1b"
+VERSION = "v0.6.2b"
 
 api = Api()
 
@@ -1179,6 +1180,7 @@ async def enter_password_event(e):
 
 async def runWallet(TOKEN):
     global txHistory
+    global WEB3_CONNECTED
     if txHistory:
         return
     Element("content-body").element.style.display = "none"
@@ -1231,7 +1233,15 @@ async def runWallet(TOKEN):
         clearSendTab(),
     )
     idleTimer()
-    unsub()
+    sub_modal()
+
+    
+    web3_status = dict(acct_info().object_entries().to_py())
+
+    if web3_status["address"]:
+        WEB3_CONNECTED = True
+        
+    sub_account()
 
     if clientOS in ["Android", "iOS"]:
         screenHideEvent()
@@ -1355,6 +1365,19 @@ async def checkExplorer():
 
     Element(f"{selection}").element.checked = True
 
+
+async def web3_state_change(data):
+    global WEB3_CONNECTED
+    status = dict(data.object_entries().to_py())
+
+    conn_status = status['isConnected']
+
+    if not conn_status and WEB3_CONNECTED:
+        setDoRefresh()
+        js.window.location.reload()
+    
+    elif not WEB3_CONNECTED and conn_status:
+        WEB3_CONNECTED = True
 
 async def insertVets():
     if txHistory.wallet.totalBalance < 2000000000000:
@@ -2657,6 +2680,8 @@ if __name__ == "__main__":
     MIN_TX = 1000  # 0.00001
     MIN_BRIDGE = 2500000000
     BRIDGE_FEE = 1000000000
+
+    WEB3_CONNECTED = False
 
     password_input = Element("new-pass-input")
     confirm_password_input = Element("new-pass-confirm")
