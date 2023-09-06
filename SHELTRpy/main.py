@@ -101,7 +101,11 @@ async def parseScanner(addr):
     amount_input = Element("send-tab-amount")
 
     if validateAddress(addr):
-        addr_input.element.value = addrexpand
+        addr_input.element.value = addr
+        await closeMessageBox()
+    elif isValidURI(addr):
+        uri = decodeURI(addr)
+        addr_input.element.value = uri.address
         if uri.amount:
             amount_input.element.value = txHistory.util.convertFromSat(uri.amount)
         await closeMessageBox()
