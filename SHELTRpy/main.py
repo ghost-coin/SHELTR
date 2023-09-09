@@ -615,11 +615,11 @@ async def doWrapTx(do_max=0):
     total_tx_out = txHistory.util.convertFromSat(inputDetails.amount + inputDetails.fee)
     Element(
         "message-box"
-    ).element.innerHTML = f"""<h3>Please Confirm Wrapping</h3><p>Polygon Address:</p><p class="message-box-secondary">{addr}</p>
-                                                <p>wGHOST to Receive:</p><p class="message-box-secondary">{amount_lock:,.8f}</p>
-                                                <p>Bridge Fee:</p><p>{bridge_fee:,.8f}</p>
-                                                <p>TX Fee:</p><p>{tx_fee:,.8f}</p>
-                                                <p>Total Out:</p><p>{total_tx_out:,.8f}</p>
+    ).element.innerHTML = f"""<h3>{locale['confirm-wrapping-label']}</h3><p>Polygon {locale['menu-tab-item-address-label']}:</p><p class="message-box-secondary">{addr}</p>
+                                                <p>wGHOST {locale['to-Receive']}:</p><p class="message-box-secondary">{amount_lock:,.8f}</p>
+                                                <p>{locale['bridge-fee']}:</p><p>{bridge_fee:,.8f}</p>
+                                                <p>Tx {locale['fee']}:</p><p>{tx_fee:,.8f}</p>
+                                                <p>{locale['total-out']}:</p><p>{total_tx_out:,.8f}</p>
                                                 <button class="cancel-confirm-send-button" id="cancel-send-button" onclick="closeMessageBox()" type="button">{locale['cancel']}</button>
                                                 <button class="cancel-confirm-send-button" id="confirm-send-button" onclick="finalizeSendTx()" type="button">{locale['send-tab-send-button']}</button>"""
 
@@ -805,10 +805,10 @@ async def doUnwrapTx(do_max=0):
 
     Element(
         "message-box"
-    ).element.innerHTML = f"""<h3>Please Confirm Unwrapping</h3><p>Polygon Address:</p><p class="message-box-secondary">{addr}</p>
-                                                <p>Ghost to Receive:</p><p class="message-box-secondary">{burnFormat:,.8f}</p>
-                                                <p>Bridge Fee:</p><p>{bridge_fee:,.8f}</p>
-                                                <p>Total Out:</p><p>{total_tx_out:,.8f}</p>
+    ).element.innerHTML = f"""<h3>{locale['please-confirm-unwrapping']}</h3><p>Polygon {locale['menu-tab-item-address-label']}:</p><p class="message-box-secondary">{addr}</p>
+                                                <p>Ghost {locale['to-Receive']}:</p><p class="message-box-secondary">{burnFormat:,.8f}</p>
+                                                <p>{locale['bridge-fee']}:</p><p>{bridge_fee:,.8f}</p>
+                                                <p>{locale['total-out']}:</p><p>{total_tx_out:,.8f}</p>
                                                 <button class="cancel-confirm-send-button" id="cancel-send-button" onclick="closeMessageBox()" type="button">{locale['cancel']}</button>
                                                 <button class="cancel-confirm-send-button" id="confirm-send-button" onclick="finalizeSendBurnTxjs('{txHistory.wallet.receiving_addresses[0]}', {BRIDGE_FEE + amount_burn})" type="button">{locale['send-tab-send-button']}</button>"""
 
@@ -860,14 +860,14 @@ async def finalizeSendBurnTx(ghostAddr, amount):
     except Exception as e:
         print(e)
         if "User rejected the transaction" in str(e):
-            message_box.element.innerHTML = f"""<h3>Fail</h3>
+            message_box.element.innerHTML = f"""<h3>{locale['fail']}</h3>
                                                    <br>
                                                    <p>User Rejected the Transaction</p>
                                                    <br>
                                                    <button class="cancel-confirm-send-button" id="cancel-send-button" onclick="closeMessageBox()" type="button">{locale['close']}</button>
                                                 """
         else:
-            message_box.element.innerHTML = f"""<h3>Fail</h3>
+            message_box.element.innerHTML = f"""<h3>{locale['fail']}</h3>
                                                     <br>
                                                     <p>{e}</p>
                                                     <br>
@@ -2661,15 +2661,27 @@ async def doTranslation(requested_locale=None):
     Element("new-cs-spend-button").element.innerText = locale["new-cs-spend-button"]
     Element("menu-tab-item-version-label").element.innerText = VERSION
 
-    # translations for the "more" tab
+    # translations for the "web3" tab
 
-    # Element("more-in-development-header").element.innerText = locale[
-    #     "more-in-development-header"
-    # ]
-    # Element("more-li-1").element.innerText = locale["more-li-1"]
-    # Element("more-li-2").element.innerText = locale["more-li-2"]
-    # Element("more-li-3").element.innerText = locale["more-li-3"]
-    # Element("more-stay-tuned").element.innerText = locale["more-stay-tuned"]
+    Element("wghost-balance").element.innerText = f"wGHOST {locale['wghost-balance']}"
+    Element("web3-tab-item-wrap-label").element.innerText = locale['wrap']
+    Element("wrap-input-amount").element.placeholder = locale["send-tab-amount"]
+    Element("wrap-input-password").element.placeholder = locale["send-tab-password"]
+    Element("wrap-min-send").element.innerText = f"Min {locale['send-tab-send-button']}: 35 Ghost"
+    Element("wrap-min-wrap").element.innetText = f"Min {locale['wrap']}: 25 Ghost"
+    Element("bridge-fee-wrap-li").element.innerText = f"{locale['bridge-fee']}: 10 Ghost"
+    Element("wrap-button-wrap-label").element.innerText = locale['wrap']
+    Element("wrap-button-wrap-max-label").element.innerText = f"{locale['wrap']} Max"
+    Element("web3-tab-item-unwrap-label").element.innerText = locale['unwrap']
+    Element("unwrap-min-send").element.innerText = f"Min {locale['send-tab-send-button']}: 35 wGHOST"
+    Element("unwrap-min-unwrap").element.innetText = f"Min {locale['wrap']}: 25 wGHOST"
+    Element("bridge-fee-unwrap-li").element.innerText = f"{locale['bridge-fee']}: 10 Ghost"
+    Element("wrap-button-unwrap-label").element.innerText = locale['unwrap']
+    Element("unwrap-input-amount").element.placeholder = locale["send-tab-amount"]
+    Element("wrap-button-uwrap-max-label").element.innerText = f"{locale['unwrap']} Max"
+    Element("web3-tab-item-swap-label").element.innerText = locale['web3-tab-item-swap-label']
+
+
 
     # define confirms dict
 

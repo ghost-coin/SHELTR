@@ -75,5 +75,17 @@
     "type": "Tipo",
     "input-addresses": "Dirección entrada",
     "output-addresses": "Dirección salida",
-    "view-on-explorer": "Ver en el explorador"
+    "view-on-explorer": "Ver en el explorador",
+    "wghost-balance": "Balance",
+    "wrap": "Wrap",
+    "unwrap": "Unwrap",
+    "bridge-fee": "Bridge Fee",
+    "coming-soon": "Coming Soon!",
+    "web3-tab-item-swap-label": "Swap",
+    "confirm-wrapping-label": "Please Confirm Wrapping",
+    "to-Receive": "to Receive",
+    "fee": "Fee",
+    "total-out": "Total Out",
+    "please-confirm-unwrapping": "Please Confirm Unwrapping",
+    "fail": "Fail"
     }

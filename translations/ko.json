@@ -75,5 +75,17 @@
     "type": "유형",
     "input-addresses": "입력 주소",
     "output-addresses": "출력 주소",
-    "view-on-explorer": "Explorer 에서 보기"
+    "view-on-explorer": "Explorer 에서 보기",
+    "wghost-balance": "Balance",
+    "wrap": "Wrap",
+    "unwrap": "Unwrap",
+    "bridge-fee": "Bridge Fee",
+    "coming-soon": "Coming Soon!",
+    "web3-tab-item-swap-label": "Swap",
+    "confirm-wrapping-label": "Please Confirm Wrapping",
+    "to-Receive": "to Receive",
+    "fee": "Fee",
+    "total-out": "Total Out",
+    "please-confirm-unwrapping": "Please Confirm Unwrapping",
+    "fail": "Fail"
     }
