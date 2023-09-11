@@ -1147,14 +1147,14 @@ async def checkPass():
 
     token = None
 
-    if not new_password_input.element.value:
+    if not (password := new_password_input.element.value):
         Element("pass-submit-button").element.disabled = False
         return False
     try:
         token = str(
             await password_decrypt(
                 str(await getData("TOKEN").then(lambda x: x)),
-                new_password_input.element.value,
+                password,
             )
         )
         new_password_input.clear()
@@ -1171,7 +1171,7 @@ async def checkPass():
         Element("pass-submit-button").element.disabled = False
 
     if token:
-        await runWallet(token)
+        await runWallet(token, password)
 
 
 async def enter_password_event(e):
@@ -1180,7 +1180,7 @@ async def enter_password_event(e):
             await checkPass()
 
 
-async def runWallet(TOKEN):
+async def runWallet(TOKEN, password):
     global txHistory
     global WEB3_CONNECTED
     if txHistory:
@@ -1191,7 +1191,8 @@ async def runWallet(TOKEN):
     await asyncio.sleep(0.05)
 
     wallet = Wallet(TOKEN, api)
-    await wallet.initialize()
+    await wallet.initialize(password)
+    password = None
 
     txHistory = TransactionHistory(wallet)
 

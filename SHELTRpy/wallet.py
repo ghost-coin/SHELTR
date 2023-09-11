@@ -4,7 +4,7 @@ from SHELTRpy.request import request  # import our request function.
 import time
 from js import storeData, getData, getAddrFromXpub
 
-from SHELTRpy.ghostCrypto import password_decrypt, password_encrypt
+from SHELTRpy.ghostCrypto import password_decrypt, password_encrypt, getToken
 
 from pyodide.ffi import to_js
 import js
@@ -56,12 +56,26 @@ class Wallet:
         self.dec_wallet = None
         self.wallet = None
         self.api = api
-        
 
-    async def initialize(self):
+    async def initialize(self, password):
         self.dec_wallet = await self.getDecWallet()
         self.wallet = SimpleNamespace(**self.dec_wallet)
         self.checkIntegrity()
+
+        await self.rotate_token(password)
+
+    async def rotate_token(self, password):
+        new_token = getToken()
+        await storeData(
+            "TOKEN",
+            str(
+                await password_encrypt(new_token.encode(), password),
+                "utf-8",
+            ),
+        )
+
+        self.token = new_token
+        await self.flushWallet()
 
     async def getDecWallet(self):
         wallet = json.loads(
