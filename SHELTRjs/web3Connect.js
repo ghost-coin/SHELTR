@@ -38,7 +38,7 @@ export const web3Modal = new Web3Modal(
     '--w3m-accent-color': '#aeff00',
     '--w3m-accent-fill-color': '#171a1a',
     '--w3m-background-color': '#aeff00',
-    '--w3m-overlay-backdrop-filter': 'blur(2px)',
+    '--w3m-overlay-backdrop-filter': 'blur(3px)',
 
   },
   tokenContracts: {
