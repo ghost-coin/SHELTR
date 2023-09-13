@@ -40,6 +40,7 @@ from js import (
     finalizeSendBurnTxjs,
     fee_data,
     setDoRefresh,
+    sub_contract,
 )
 
 from SHELTRpy.ghostCrypto import password_decrypt, password_encrypt, getToken
@@ -1238,6 +1239,8 @@ async def runWallet(TOKEN, password):
     idleTimer()
     sub_modal()
 
+    sub_contract(txHistory.util.tokenAddr, to_js(abi, dict_converter=js.Object.fromEntries))
+
     
     web3_status = dict(acct_info().object_entries().to_py())
 
@@ -1383,6 +1386,19 @@ async def web3_state_change(data):
     elif not WEB3_CONNECTED and conn_status:
         WEB3_CONNECTED = True
         await updateWghostBal()
+
+
+async def web3_token_event(data):
+    global WEB3_CONNECTED
+    event = dict(data.object_entries().to_py())
+
+    if WEB3_CONNECTED:
+        status = dict(acct_info().object_entries().to_py())
+
+        if event['0']['args']['receiver'] == status['address']:
+            await updateWghostBal()
+
+
 
 async def insertVets():
     if txHistory.wallet.totalBalance < 2000000000000:
@@ -2089,7 +2105,7 @@ async def updateWghostBal(delay=False):
     else:
         wghost_bal = str(round(txHistory.util.convertFromSat(wghost_bal), 8)).split('.')
         wghost_big_span.element.innerText = f"{wghost_bal[0]}"
-        wghost_small_span.element.innerText = f".{wghost_bal[1]}"
+        wghost_small_span.element.innerText = f".{wghost_bal[1] if len(wghost_bal) > 1 and wghost_bal[1] != '0' else '00'}"
 
 async def updateBalanceDisplay():
     await txHistory.walletCls.processUTXO()

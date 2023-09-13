@@ -11,7 +11,7 @@ import { Web3Modal } from "https://unpkg.com/@web3modal/html@2.7.1";
 
 // 0. Import wagmi dependencies
 const { mainnet, polygon, avalanche, arbitrum, polygonMumbai } = WagmiCoreChains;
-const { configureChains, createConfig, fetchBalance, getAccount, readContract, writeContract, fetchFeeData, watchAccount } = WagmiCore;
+const { configureChains, createConfig, fetchBalance, getAccount, readContract, writeContract, fetchFeeData, watchAccount, watchContractEvent } = WagmiCore;
 
 // 1. Define chains
 const chains = [polygonMumbai];
@@ -65,6 +65,7 @@ export const read_rontract = readContract;
 export const write_contract = writeContract;
 export const fee_data = fetchFeeData;
 export const watch_account = watchAccount;
+export const watch_contract_event = watchContractEvent;
 
 
 window.fetchBalancePoly = fetchBalance;
@@ -73,3 +74,4 @@ window.read_contract = readContract;
 window.write_contract = writeContract;
 window.fee_data = fetchFeeData;
 window.watch_account = watchAccount;
+window.watch_contract_event = watchContractEvent;

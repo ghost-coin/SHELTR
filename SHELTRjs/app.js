@@ -46,6 +46,25 @@ sub_account = function () {
   watch_account((account) => setAccountState(account));
 }
 
+
+function processMintEvent(data) {
+  pything = pyscript.runtime.globals.get("web3_token_event");
+
+  pything(data);
+}
+
+sub_contract = function(tokenAddr, abi){
+  watch_contract_event(
+    {
+      address: tokenAddr,
+      abi: abi,
+      eventName: 'WGhostMinted',
+    },
+    (data) => processMintEvent(data),
+  )
+}
+
+
 burn_wghost = async function(ghostAddr, amount, maxFeePerGas, maxPriorityFeePerGas, chainID, tokenAddr, abi) {
   
   const { hash } = await write_contract({
@@ -54,9 +73,6 @@ burn_wghost = async function(ghostAddr, amount, maxFeePerGas, maxPriorityFeePerG
     functionName: 'burn',
     args: [ghostAddr, amount],
     chainId: chainID,
-    gas: 100000,
-    maxFeePerGas: maxFeePerGas,
-    maxPriorityFeePerGas:maxPriorityFeePerGas,
 })
   return hash
 }
