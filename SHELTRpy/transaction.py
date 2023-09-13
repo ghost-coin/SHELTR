@@ -189,9 +189,9 @@ class TransactionHistory:
             elif vout["type"] == "data":
                 outAddr[f"DATA-{vout['n']}"] = 0
                 
-                if vout['data_hex'].startswith("4742"):
+                if vout['data_hex'].startswith("4742") and self.util.verify_checksum(vout['data_hex']):
                     isWrap = True
-                elif vout['data_hex'].startswith("4743"):
+                elif vout['data_hex'].startswith("4743") and self.util.verify_checksum(vout['data_hex']):
                     isUnwrap = True
 
             elif "addresses" in vout["scriptPubKey"]:
