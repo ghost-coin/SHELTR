@@ -738,7 +738,9 @@ class Util:
         return txPrefix + (data + checksum).hex()
 
     def remove_0x_prefix(self, hexData):
-        return f"{int(hexData, 16):x}"
+        if hexData.startswith("0x"):
+            return hexData[2:]
+        return hexData
 
     def sha256d_check(self, hexData):
         m = sha256(sha256(hexData).digest())
