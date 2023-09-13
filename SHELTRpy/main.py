@@ -1399,6 +1399,14 @@ async def web3_token_event(data):
             await updateWghostBal()
 
 
+async def web3_modal_open(data):
+    global WEB3_CONNECTED
+    event = dict(data.object_entries().to_py())
+    
+    if event['open']:
+        print("yee yee")
+        js.document.getElementsByTagName("body")[0].style.overflow = "visible"
+
 
 async def insertVets():
     if txHistory.wallet.totalBalance < 2000000000000:

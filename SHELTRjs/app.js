@@ -30,6 +30,9 @@ let modalOpen = false;
 
 function setModalOpenState(data) {
   modalOpen = data.open;
+  pything = pyscript.runtime.globals.get("web3_modal_open");
+
+  pything(data);
 }
 
 function setAccountState (data) {
