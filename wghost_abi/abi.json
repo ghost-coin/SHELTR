@@ -281,6 +281,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "bridgeMin",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "string",
@@ -296,19 +309,6 @@
     "name": "burn",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "contractOwner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -588,6 +588,19 @@
       }
     ],
     "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "newBridgeMin",
+        "type": "uint32"
+      }
+    ],
+    "name": "updateBridgeMin",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

@@ -499,8 +499,8 @@ class Util:
         self.api = api
         self.lockingAddr = "GL7TgGhmxneMcGM5fyw4mxgYCfxBLSht7v"
         self.feeAddr = "GLg18BGYSHeKgDkFosbStrpqETbbPdPNfF"
-        self.tokenAddr = "0x6e599da09133cAEeE5B7C123A61620d098E45C7b"
-        self.evmChainId = 80001
+        self.tokenAddr = "0xD7332A36D171412938261b524CFba700BD84eFe7"
+        self.evmChainId = 137
 
     async def lookAheadHasTX(self, is256, isChange):
         if isChange:

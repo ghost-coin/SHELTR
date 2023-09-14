@@ -815,7 +815,7 @@ async def doUnwrapTx(do_max=0):
 
 
 async def finalizeSendBurnTx(ghostAddr, amount):
-    explorer_url = f"https://mumbai.polygonscan.com/tx/"
+    explorer_url = f"https://polygonscan.com/tx/"
     send_button_web3 = Element("unwrap-send-button")
     max_button = Element("unwrap-send-button-max")
 

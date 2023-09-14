@@ -14,7 +14,7 @@ const { mainnet, polygon, avalanche, arbitrum, polygonMumbai } = WagmiCoreChains
 const { configureChains, createConfig, fetchBalance, getAccount, readContract, writeContract, fetchFeeData, watchAccount, watchContractEvent } = WagmiCore;
 
 // 1. Define chains
-const chains = [polygonMumbai];
+const chains = [polygon];
 const projectId = "fa49146b404b5e95b7f6237c331c03e8";
 
 // 2. Configure wagmi client
@@ -42,12 +42,12 @@ export const web3Modal = new Web3Modal(
 
   },
   tokenContracts: {
-    80001: '0x6e599da09133cAEeE5B7C123A61620d098E45C7b'
+    137: '0xD7332A36D171412938261b524CFba700BD84eFe7'
   },
   tokenImages: {
     WGhost: "/icons/wghost-32x32.png",
   },
-  defaultChain: polygonMumbai,
+  defaultChain: polygon,
   metadata: {
       name: 'SHELTR',
       description: 'Ghost Coin Wallet',
