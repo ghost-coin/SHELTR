@@ -2576,6 +2576,8 @@ async def doTranslation(requested_locale=None):
         locale_code = "sv"
     elif lang.lower() in ["zh", "zh-hk", "zh-cn", "zh-sg", "zh-tw"]:
         locale_code = "zh"
+    elif lang.lower() in ["hy"]:
+        locale_code = "hy"
 
     else:
         locale_code = "en"
