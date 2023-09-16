@@ -42,7 +42,7 @@ export const web3Modal = new Web3Modal(
 
   },
   tokenContracts: {
-    137: '0xD7332A36D171412938261b524CFba700BD84eFe7'
+    137: '0xb5e0CFe1B4dB501aC003B740665bf43192cC7853'
   },
   tokenImages: {
     WGhost: "/icons/wghost-32x32.png",
