@@ -75,5 +75,17 @@
     "type": "Typ",
     "input-addresses": "Adresy wejściowe",
     "output-addresses": "Adresy wyjściowe",
-    "view-on-explorer": "Wyświetl w Explorer"
+    "view-on-explorer": "Wyświetl w Explorer",
+    "wghost-balance": "Bilans",
+    "wrap": "Zapakować",
+    "unwrap": "Rozpakować",
+    "bridge-fee": "Opłata za most",
+    "coming-soon": "Wkrótce!",
+    "web3-tab-item-swap-label": "Zamieniać",
+    "confirm-wrapping-label": "Potwierdź pakowanie",
+    "to-Receive": "Otrzymać",
+    "fee": "Opłata",
+    "total-out": "Całkowite wyjście",
+    "please-confirm-unwrapping": "Potwierdź rozpakowanie",
+    "fail": "Awaria"
     }

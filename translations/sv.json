@@ -75,5 +75,17 @@
     "type": "Typ",
     "input-addresses": "Inmatningsadresser",
     "output-addresses": "Utgångsadresser",
-    "view-on-explorer": "Visa på Explorer"
+    "view-on-explorer": "Visa på Explorer",
+    "wghost-balance": "Balans",
+    "wrap": "Packa",
+    "unwrap": "Packa upp",
+    "bridge-fee": "Broavgift",
+    "coming-soon": "Kommer snart!",
+    "web3-tab-item-swap-label": "Byta",
+    "confirm-wrapping-label": "Vänligen bekräfta packningen",
+    "to-Receive": "Att motta",
+    "fee": "Avgift",
+    "total-out": "Totalt ut",
+    "please-confirm-unwrapping": "Vänligen bekräfta uppackningen",
+    "fail": "Misslyckas"
     }

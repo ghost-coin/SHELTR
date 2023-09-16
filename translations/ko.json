@@ -75,5 +75,17 @@
     "type": "유형",
     "input-addresses": "입력 주소",
     "output-addresses": "출력 주소",
-    "view-on-explorer": "Explorer 에서 보기"
+    "view-on-explorer": "Explorer 에서 보기",
+    "wghost-balance": "전체 균형",
+    "wrap": "마무리하려고",
+    "unwrap": "짐 등에서 꺼내다",
+    "bridge-fee": "브리지 요금",
+    "coming-soon": "곧 출시됩니다!",
+    "web3-tab-item-swap-label": "교환",
+    "confirm-wrapping-label": "포장을 확인해 주세요",
+    "to-Receive": "받다",
+    "fee": "요금",
+    "total-out": "총 아웃",
+    "please-confirm-unwrapping": "개봉을 확인해 주세요",
+    "fail": "실패"
     }

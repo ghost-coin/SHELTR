@@ -75,5 +75,17 @@
     "type": "Art",
     "input-addresses": "Eingangsadressen",
     "output-addresses": "Ausgangsadressen",
-    "view-on-explorer": "Im Explorer anzeigen"
+    "view-on-explorer": "Im Explorer anzeigen",
+    "wghost-balance": "Bilanz",
+    "wrap": "Einpacken",
+    "unwrap": "Auspacken",
+    "bridge-fee": "Brückengebühr",
+    "coming-soon": "Demnächst!",
+    "web3-tab-item-swap-label": "Tauschen",
+    "confirm-wrapping-label": "Bitte bestätigen Sie das Einpacken",
+    "to-Receive": "Bekommen",
+    "fee": "Gebühr",
+    "total-out": "Gesamtleistung",
+    "please-confirm-unwrapping": "Bitte bestätigen Sie das Auspacken",
+    "fail": "Gescheitert"
     }

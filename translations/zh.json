@@ -75,5 +75,17 @@
     "type": "類型",
     "input-addresses": "輸入地址",
     "output-addresses": "輸出地址",
-    "view-on-explorer": "在Explorer上查看"
+    "view-on-explorer": "在Explorer上查看",
+    "wghost-balance": "平衡",
+    "wrap": "裹",
+    "unwrap": "展开",
+    "bridge-fee": "过桥费",
+    "coming-soon": "即将推出！",
+    "web3-tab-item-swap-label": "交换",
+    "confirm-wrapping-label": "请确认包装",
+    "to-Receive": "受到",
+    "fee": "费用",
+    "total-out": "全面出局",
+    "please-confirm-unwrapping": "请确认拆封",
+    "fail": "失败"
     }
