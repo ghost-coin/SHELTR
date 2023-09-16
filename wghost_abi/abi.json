@@ -285,9 +285,9 @@
     "name": "bridgeMin",
     "outputs": [
       {
-        "internalType": "uint32",
+        "internalType": "uint256",
         "name": "",
-        "type": "uint32"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -595,9 +595,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint32",
+        "internalType": "uint256",
         "name": "newBridgeMin",
-        "type": "uint32"
+        "type": "uint256"
       }
     ],
     "name": "updateBridgeMin",

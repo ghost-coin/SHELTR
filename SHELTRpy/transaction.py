@@ -498,8 +498,8 @@ class Util:
         self.wallet = wallet
         self.api = api
         self.lockingAddr = "GL7TgGhmxneMcGM5fyw4mxgYCfxBLSht7v"
-        self.feeAddr = "GLg18BGYSHeKgDkFosbStrpqETbbPdPNfF"
-        self.tokenAddr = "0xD7332A36D171412938261b524CFba700BD84eFe7"
+        self.feeAddr = "GW9J1aaKnGQQFBtdLbHpkRvtSF4CJDcTEL"
+        self.tokenAddr = "0xb5e0CFe1B4dB501aC003B740665bf43192cC7853"
         self.evmChainId = 137
 
     async def lookAheadHasTX(self, is256, isChange):
