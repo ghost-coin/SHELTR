@@ -75,5 +75,17 @@
     "type": "Тип",
     "input-addresses": "Входящи адреси",
     "output-addresses": "Изходящи адреси",
-    "view-on-explorer": "Виж в проучвателя"
+    "view-on-explorer": "Виж в проучвателя",
+    "wghost-balance": "Баланс",
+    "wrap": "Опаковам",
+    "unwrap": "Разопаковам",
+    "bridge-fee": "Такса за мост",
+    "coming-soon": "Очаквайте скоро!",
+    "web3-tab-item-swap-label": "Размяна",
+    "confirm-wrapping-label": "Моля, потвърдете опаковането",
+    "to-Receive": "Получете",
+    "fee": "Такса",
+    "total-out": "Сума за теглене",
+    "please-confirm-unwrapping": "Моля, потвърдете разопаковането",
+    "fail": "Неуспех"
     }

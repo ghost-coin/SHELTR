@@ -75,5 +75,17 @@
     "type": "Tipo",
     "input-addresses": "Endereços de entrada",
     "output-addresses": "Endereços de saída",
-    "view-on-explorer": "Ver no Explorer"
+    "view-on-explorer": "Ver no Explorer",
+    "wghost-balance": "Balancete",
+    "wrap": "Embrulhar",
+    "unwrap": "Desembrulhar",
+    "bridge-fee": "Taxa de ponte",
+    "coming-soon": "Em breve!",
+    "web3-tab-item-swap-label": "Trocar",
+    "confirm-wrapping-label": "Por favor confirme o embrulho",
+    "to-Receive": "Receber",
+    "fee": "Taxa",
+    "total-out": "Total de saída",
+    "please-confirm-unwrapping": "Confirme o desembrulhamento",
+    "fail": "Falha"
     }

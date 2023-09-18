@@ -75,5 +75,17 @@
     "type": "タイプ",
     "input-addresses": "入力アドレス",
     "output-addresses": "出力アドレス",
-    "view-on-explorer": "エクスプローラで見る"
+    "view-on-explorer": "エクスプローラで見る",
+    "wghost-balance": "バランス",
+    "wrap": "まとめる",
+    "unwrap": "開梱する",
+    "bridge-fee": "ブリッジ料金",
+    "coming-soon": "近日公開！",
+    "web3-tab-item-swap-label": "スワップ",
+    "confirm-wrapping-label": "ラッピングをご確認ください",
+    "to-Receive": "受け取る",
+    "fee": "料金",
+    "total-out": "トータルアウト",
+    "please-confirm-unwrapping": "開梱をご確認ください",
+    "fail": "失敗"
     }

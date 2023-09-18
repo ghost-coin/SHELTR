@@ -75,5 +75,17 @@
     "type": "Type",
     "input-addresses": "Invoeradressen",
     "output-addresses": "Uitvoeradressen",
-    "view-on-explorer": "Bekijk op Explorer"
+    "view-on-explorer": "Bekijk op Explorer",
+    "wghost-balance": "Eindbalans",
+    "wrap": "Inpakken",
+    "unwrap": "Uitpakken",
+    "bridge-fee": "Bruggeld",
+    "coming-soon": "Binnenkort beschikbaar!",
+    "web3-tab-item-swap-label": "Ruilen",
+    "confirm-wrapping-label": "Bevestig de verpakking",
+    "to-Receive": "Ontvangen",
+    "fee": "Tarief",
+    "total-out": "Totaal uit",
+    "please-confirm-unwrapping": "Bevestig het uitpakken",
+    "fail": "Mislukking"
     }

@@ -75,5 +75,17 @@
     "type": "Түр",
     "input-addresses": "Мекенжайларды енгізу",
     "output-addresses": "Шығыс мекенжайлары",
-    "view-on-explorer": "Explorerде қарау"
+    "view-on-explorer": "Explorerде қарау",
+    "wghost-balance": "Баланс",
+    "wrap": "Орау",
+    "unwrap": "Орау үшін",
+    "bridge-fee": "Көпір ақысы",
+    "coming-soon": "Жақында шығады!",
+    "web3-tab-item-swap-label": "Ауыстыру",
+    "confirm-wrapping-label": "Орауды растаңыз",
+    "to-Receive": "Қабылдау",
+    "fee": "Алым",
+    "total-out": "Барлығы аяқталды",
+    "please-confirm-unwrapping": "Орамды ашуды растаңыз",
+    "fail": "Сәтсіз"
     }

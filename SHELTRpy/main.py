@@ -29,6 +29,18 @@ from js import (
     stopScanner,
     txMonitorAnon,
     signMessage,
+    acct_info,
+    fetchBalancePoly,
+    read_contract,
+    web3Modal,
+    sub_modal,
+    sub_account,
+    generateWrapTx,
+    burn_wghost,
+    finalizeSendBurnTxjs,
+    fee_data,
+    setDoRefresh,
+    sub_contract,
 )
 
 from SHELTRpy.ghostCrypto import password_decrypt, password_encrypt, getToken
@@ -46,7 +58,7 @@ import re, math, random
 
 import SHELTRpy.ecc
 
-VERSION = "v0.5.0b"
+VERSION = "v0.6.3b"
 
 api = Api()
 
@@ -409,6 +421,7 @@ async def sendTx():
     if inputDetails.fee + inputDetails.amount > (
         txHistory.wallet.totalBalance
         - (txHistory.wallet.coldstakingBalance if not spendCSOut else 0)
+        - txHistory.wallet.unconfirmedBalance
     ):
         js.console.log("Invalid Amount")
         await closeMessageBox()
@@ -468,7 +481,405 @@ async def sendTx():
     Element("confirm-send-button").element.style.opacity = "1"
 
 
+async def doWrapTx(do_max=0):
+    send_button = Element("wrap-send-button")
+    send_button.element.disabled = True
+    max_button = Element("wrap-send-button-max")
+    max_button.element.disabled = True
+    send_button_send_tab = Element("send-tab-send-button")
+    send_button_send_tab.element.disabled = True
+    zap_button = Element("send-tab-zap-button")
+    zap_button.element.disabled = True
+    amount_input = Element("wrap-input-amount")
+    password_input = Element("wrap-input-password")
+
+    evm_acct = dict(acct_info().object_entries().to_py())
+
+    if not (addr := evm_acct["address"]):
+        js.console.log("web3 not connected!")
+
+        js.alert(
+            "Please connect a web3 wallet by pressing the Connect Wallet button at the top."
+        )
+
+        send_button.element.disabled = False
+        max_button.element.disabled = False
+
+        send_button_send_tab.element.disabled = False
+        zap_button.element.disabled = False
+        return
+
+    if not (password := password_input.element.value) or not await isValidPass(
+        password
+    ):
+        js.console.log("Invalid Password")
+        password_input.element.style.borderColor = "#ff4d4d"
+
+        await shakeIt(password_input)
+
+        send_button.element.disabled = False
+        max_button.element.disabled = False
+
+        send_button_send_tab.element.disabled = False
+        zap_button.element.disabled = False
+        return
+    else:
+        password_input.element.style.borderColor = "#aeff00"
+        password_input.clear()
+
+    if not do_max:
+        if not (amount_lock := amount_input.element.value):
+            js.console.log("Invalid Amount")
+            amount_input.element.style.borderColor = "#ff4d4d"
+
+            await shakeIt(amount_input)
+
+            send_button.element.disabled = False
+            max_button.element.disabled = False
+            return
+        else:
+            try:
+                amount_lock = round(float(amount_lock), 8)
+
+                if txHistory.util.convertToSat(amount_lock) < MIN_BRIDGE:
+                    raise
+
+                amount_input.element.style.borderColor = "#aeff00"
+
+            except:
+                js.console.log("Invalid Amount")
+                amount_input.element.style.borderColor = "#ff4d4d"
+
+                await shakeIt(amount_input)
+
+                send_button.element.disabled = False
+                max_button.element.disabled = False
+
+                send_button_send_tab.element.disabled = False
+                zap_button.element.disabled = False
+                return
+
+    else:
+        amount_lock = (
+            await TransactionInputs(txHistory, 0, spendColdStake=spendCSOut).getMax()
+            - BRIDGE_FEE
+        )
+
+        if amount_lock < MIN_BRIDGE:
+            js.console.log("Invalid Amount")
+            await closeMessageBox()
+            amount_input.element.style.borderColor = "#ff4d4d"
+
+            await shakeIt(amount_input)
+
+            send_button.element.disabled = False
+            max_button.element.disabled = False
+
+            send_button_send_tab.element.disabled = False
+            zap_button.element.disabled = False
+            return
+
+        amount_lock = txHistory.util.convertFromSat(amount_lock)
+
+    Element(
+        "message-box"
+    ).element.innerHTML = f"""<h3>{locale['processing-transaction']}</h3><p>{locale['menu-tab-item-address-label']}:</p><p class="message-box-secondary"></p><p>{locale['send-tab-amount']}:</p><p class="message-box-secondary"></p>
+                                                <button class="cancel-confirm-send-button" id="cancel-send-button" onclick="closeMessageBox()" type="button">{locale['cancel']}</button>"""
+
+    await showMessageBox()
+
+    bridge_fee = txHistory.util.convertFromSat(BRIDGE_FEE)
+    inputDetails = TransactionInputs(
+        txHistory, amount_lock + bridge_fee, spendColdStake=spendCSOut
+    )
+
+    tx_fee = txHistory.util.convertFromSat(inputDetails.fee)
+
+    if inputDetails.fee + inputDetails.amount > (
+        txHistory.wallet.totalBalance
+        - (txHistory.wallet.coldstakingBalance if not spendCSOut else 0)
+        - txHistory.wallet.unconfirmedBalance
+    ):
+        js.console.log("Invalid Amount")
+        await closeMessageBox()
+        amount_input.element.style.borderColor = "#ff4d4d"
+
+        await shakeIt(amount_input)
+
+        send_button.element.disabled = False
+        max_button.element.disabled = False
+
+        send_button_send_tab.element.disabled = False
+        zap_button.element.disabled = False
+        return
+
+    total_tx_out = txHistory.util.convertFromSat(inputDetails.amount + inputDetails.fee)
+    Element(
+        "message-box"
+    ).element.innerHTML = f"""<h3>{locale['confirm-wrapping-label']}</h3><p>Polygon {locale['menu-tab-item-address-label']}:</p><p class="message-box-secondary">{addr}</p>
+                                                <p>wGHOST {locale['to-Receive']}:</p><p class="message-box-secondary">{amount_lock:,.8f}</p>
+                                                <p>{locale['bridge-fee']}:</p><p>{bridge_fee:,.8f}</p>
+                                                <p>Tx {locale['fee']}:</p><p>{tx_fee:,.8f}</p>
+                                                <p>{locale['total-out']}:</p><p>{total_tx_out:,.8f}</p>
+                                                <button class="cancel-confirm-send-button" id="cancel-send-button" onclick="closeMessageBox()" type="button">{locale['cancel']}</button>
+                                                <button class="cancel-confirm-send-button" id="confirm-send-button" onclick="finalizeSendTx()" type="button">{locale['send-tab-send-button']}</button>"""
+
+    Element("confirm-send-button").element.disabled = True
+    Element("confirm-send-button").element.style.opacity = "0.2"
+
+    privKeys = await inputDetails.getPrivateKeys(password)
+
+    csInfo = txHistory.wallet.coldstaking
+
+    change_addr = random.choice(txHistory.wallet.change_addresses)
+
+    stake_addr = False
+
+    if csInfo["isActive"]:
+        stake_addr = csInfo["poolKey"]
+
+        if getCsAddrInfo(stake_addr).type == "xpub":
+            stake_addr = getAddrFromXpub(stake_addr, 0)
+
+        change_addr = txHistory.wallet.coldstaking["spendKey"]
+
+    try:
+        rawTx = generateWrapTx(
+            to_js(inputDetails.inputs, dict_converter=js.Object.fromEntries),
+            txHistory.util.prepare_data_out(addr),
+            change_addr,
+            txHistory.util.lockingAddr,
+            txHistory.util.feeAddr,
+            to_js(privKeys),
+            txHistory.util.convertToSat(amount_lock),
+            BRIDGE_FEE,
+            inputDetails.fee,
+            stake_addr,
+        )
+
+    except Exception as e:
+        print(e)
+        send_button.element.disabled = False
+        max_button.element.disabled = False
+
+        send_button_send_tab.element.disabled = False
+        zap_button.element.disabled = False
+        return
+
+    txHistory.pendingTxOut = rawTx
+
+    Element("confirm-send-button").element.disabled = False
+    Element("confirm-send-button").element.style.opacity = "1"
+
+
+async def doUnwrapTx(do_max=0):
+    send_button = Element("unwrap-send-button")
+    send_button.element.disabled = True
+    max_button = Element("unwrap-send-button-max")
+    max_button.element.disabled = True
+
+    send_button_send_tab = Element("send-tab-send-button")
+    send_button_send_tab.element.disabled = True
+
+    zap_button = Element("send-tab-zap-button")
+    zap_button.element.disabled = True
+    amount_input = Element("unwrap-input-amount")
+
+    evm_acct = dict(acct_info().object_entries().to_py())
+
+    if not (addr := evm_acct["address"]):
+        js.console.log("web3 not connected!")
+
+        js.alert(
+            "Please connect a web3 wallet by pressing the Connect Wallet button at the top."
+        )
+
+        send_button.element.disabled = False
+        max_button.element.disabled = False
+
+        send_button_send_tab.element.disabled = False
+        zap_button.element.disabled = False
+        return
+    
+    Element(
+        "message-box"
+    ).element.innerHTML = f"""<h3>{locale['processing-transaction']}</h3><p>{locale['menu-tab-item-address-label']}:</p><p class="message-box-secondary"></p><p>{locale['send-tab-amount']}:</p><p class="message-box-secondary"></p>
+                                                <button class="cancel-confirm-send-button" id="cancel-send-button" onclick="closeMessageBox()" type="button">{locale['cancel']}</button>"""
+
+    await showMessageBox()
+
+    contract_info = {
+        "address": evm_acct["address"],
+        "token": txHistory.util.tokenAddr,
+        "chainId": txHistory.util.evmChainId,
+    }
+    wghost_bal = await fetchBalancePoly(
+        to_js(contract_info, dict_converter=js.Object.fromEntries)
+    ).then(lambda d: d)
+    wghost_bal = dict(wghost_bal.object_entries().to_py())["value"]
+
+    del contract_info["token"]
+
+    matic_bal = await fetchBalancePoly(
+        to_js(contract_info, dict_converter=js.Object.fromEntries)
+    ).then(lambda d: d)
+    matic_bal = dict(matic_bal.object_entries().to_py())["value"]
+
+    gas_fees = await fee_data(
+        to_js(
+            {"chainId": txHistory.util.evmChainId}, dict_converter=js.Object.fromEntries
+        )
+    ).then(lambda d: d)
+    gas_fees = dict(gas_fees.object_entries().to_py())
+
+    if matic_bal < gas_fees["gasPrice"]:
+        await closeMessageBox()
+        js.console.log("web3 not connected!")
+
+        js.alert("Not enough Matic for gas!")
+
+        send_button.element.disabled = False
+        max_button.element.disabled = False
+
+        send_button_send_tab.element.disabled = False
+        zap_button.element.disabled = False
+        return
+
+    if not do_max:
+        if not (amount_burn := amount_input.element.value):
+            await closeMessageBox()
+            js.console.log("Invalid Amount")
+            amount_input.element.style.borderColor = "#ff4d4d"
+
+            await shakeIt(amount_input)
+
+            send_button.element.disabled = False
+            max_button.element.disabled = False
+            return
+        else:
+            try:
+                amount_burn = txHistory.util.convertToSat(round(float(amount_burn), 8))
+
+                if amount_burn < MIN_BRIDGE:
+                    raise
+
+                amount_input.element.style.borderColor = "#aeff00"
+
+            except:
+                js.console.log("Invalid Amount")
+                amount_input.element.style.borderColor = "#ff4d4d"
+
+                await shakeIt(amount_input)
+
+                send_button.element.disabled = False
+                max_button.element.disabled = False
+
+                send_button_send_tab.element.disabled = False
+                zap_button.element.disabled = False
+                return
+
+    else:
+        amount_burn = wghost_bal - BRIDGE_FEE
+
+    if (
+        amount_burn + BRIDGE_FEE < MIN_BRIDGE + BRIDGE_FEE
+        or amount_burn + BRIDGE_FEE > wghost_bal
+    ):
+        await closeMessageBox()
+        js.console.log("Invalid Amount")
+        amount_input.element.style.borderColor = "#ff4d4d"
+
+        await shakeIt(amount_input)
+
+        send_button.element.disabled = False
+        max_button.element.disabled = False
+
+        send_button_send_tab.element.disabled = False
+        zap_button.element.disabled = False
+        return
+
+    
+    bridge_fee = txHistory.util.convertFromSat(BRIDGE_FEE)
+    burnFormat = txHistory.util.convertFromSat(amount_burn)
+
+    total_tx_out = txHistory.util.convertFromSat(BRIDGE_FEE + amount_burn)
+
+    Element(
+        "message-box"
+    ).element.innerHTML = f"""<h3>{locale['please-confirm-unwrapping']}</h3><p>Polygon {locale['menu-tab-item-address-label']}:</p><p class="message-box-secondary">{addr}</p>
+                                                <p>Ghost {locale['to-Receive']}:</p><p class="message-box-secondary">{burnFormat:,.8f}</p>
+                                                <p>{locale['bridge-fee']}:</p><p>{bridge_fee:,.8f}</p>
+                                                <p>{locale['total-out']}:</p><p>{total_tx_out:,.8f}</p>
+                                                <button class="cancel-confirm-send-button" id="cancel-send-button" onclick="closeMessageBox()" type="button">{locale['cancel']}</button>
+                                                <button class="cancel-confirm-send-button" id="confirm-send-button" onclick="finalizeSendBurnTxjs('{txHistory.wallet.receiving_addresses[0]}', {BRIDGE_FEE + amount_burn})" type="button">{locale['send-tab-send-button']}</button>"""
+
+
+async def finalizeSendBurnTx(ghostAddr, amount):
+    explorer_url = f"https://polygonscan.com/tx/"
+    send_button_web3 = Element("unwrap-send-button")
+    max_button = Element("unwrap-send-button-max")
+
+    conf_button = Element("confirm-send-button")
+    send_button = Element("send-tab-send-button")
+    zap_button = Element("send-tab-zap-button")
+    message_box = Element("message-box")
+
+    await clearSendTab()
+
+    send_button.element.disabled = False
+    zap_button.element.disabled = False
+
+    try:
+        send_button_web3.element.disabled = False
+        max_button.element.disabled = False
+        conf_button.element.diabled = False
+        gas_fees = await fee_data(
+            to_js(
+                {"chainId": txHistory.util.evmChainId},
+                dict_converter=js.Object.fromEntries,
+            )
+        ).then(lambda d: d)
+        gas_fees = dict(gas_fees.object_entries().to_py())
+        setDoRefresh()
+
+        burn = await burn_wghost(str(ghostAddr), 
+                                 int(amount),
+                                 int(gas_fees["maxFeePerGas"]),
+                                 int(gas_fees['maxPriorityFeePerGas']),
+                                 int(txHistory.util.evmChainId),
+                                 str(txHistory.util.tokenAddr),
+                                 to_js(abi, dict_converter=js.Object.fromEntries),
+                                 )
+        message_box.element.innerHTML = f"""<h3>{locale['success']}</h3>
+                                                   <br>
+                                                   <a class="message-box-secondary" style="font-size:10pt;" href="{explorer_url}{burn}" target="_blank">{burn}</a>
+                                                   <br>
+                                                   <button class="cancel-confirm-send-button" id="cancel-send-button" onclick="closeMessageBox()" type="button">{locale['close']}</button>
+                                                """
+        await updateWghostBal(delay=15)
+
+    except Exception as e:
+        print(e)
+        if "User rejected the transaction" in str(e):
+            message_box.element.innerHTML = f"""<h3>{locale['fail']}</h3>
+                                                   <br>
+                                                   <p>User Rejected the Transaction</p>
+                                                   <br>
+                                                   <button class="cancel-confirm-send-button" id="cancel-send-button" onclick="closeMessageBox()" type="button">{locale['close']}</button>
+                                                """
+        else:
+            message_box.element.innerHTML = f"""<h3>{locale['fail']}</h3>
+                                                    <br>
+                                                    <p>{e}</p>
+                                                    <br>
+                                                    <button class="cancel-confirm-send-button" id="cancel-send-button" onclick="closeMessageBox()" type="button">{locale['close']}</button>
+                                                    """
+
+
+
 async def finalizeSendTx():
+    explorer_url = f"https://{explore_dict[txHistory.wallet.options['explorer']]}/tx/"
+
     if not txHistory.pendingTxOut:
         return
 
@@ -480,6 +891,10 @@ async def finalizeSendTx():
 
     try:
         txid = await txHistory.api.sendTx(str(rawTx))
+
+        if txid == -1:
+            raise ValueError
+
     except Exception as e:
         message_box.element.innerHTML = f"""<h3>{locale['error']}</h3>
                                                    <br>
@@ -494,7 +909,7 @@ async def finalizeSendTx():
 
     message_box.element.innerHTML = f"""<h3>{locale['success']}</h3>
                                                    <br>
-                                                   <p>{txid}</p>
+                                                   <a class="message-box-secondary" style="font-size:10pt;" href="{explorer_url}{txid}" target="_blank">{txid}</a>
                                                    <br>
                                                    <button class="cancel-confirm-send-button" id="cancel-send-button" onclick="closeMessageBox(isTxSuccess=true)" type="button">{locale['close']}</button>
                                                 """
@@ -522,12 +937,24 @@ async def closeMessageBox(isTxSuccess=False):
     if txHistory.showTxInfo:
         txHistory.showTxInfo = ""
 
+    send_button_unwrap = Element("unwrap-send-button")
+    max_button_unwrap = Element("unwrap-send-button-max")
+
+    send_button_unwrap.element.disabled = False
+    max_button_unwrap.element.disabled = False
+
     send_button = Element("send-tab-send-button")
     zap_button = Element("send-tab-zap-button")
     message_box = Element("message-box")
 
+    send_button_wrap = Element("wrap-send-button")
+    max_button_wrap = Element("wrap-send-button-max")
+
     send_button.element.disabled = False
     zap_button.element.disabled = False
+
+    send_button_wrap.element.disabled = False
+    max_button_wrap.element.disabled = False
 
     Element("send-tab-clear-button").element.disabled = False
     Element("send-tab-scan-button").element.disabled = False
@@ -607,13 +1034,25 @@ async def clearSendTab():
     password_input = Element("send-tab-password")
     checkbox = Element("send-tab-checkbox")
 
+    amt_wrap = Element("wrap-input-amount")
+    pass_wrap = Element("wrap-input-password")
+    amt_unwrap = Element("unwrap-input-amount")
+
     addr_input.clear()
     amount_input.clear()
     password_input.clear()
+    
+    amt_unwrap.clear()
+    amt_wrap.clear()
+    pass_wrap.clear()
 
     addr_input.element.style.borderColor = "#aeff00"
     amount_input.element.style.borderColor = "#aeff00"
     password_input.element.style.borderColor = "#aeff00"
+
+    amt_wrap.element.style.borderColor = "#aeff00"
+    pass_wrap.element.style.borderColor = "#aeff00"
+    amt_unwrap.element.style.borderColor = "#aeff00"
 
     checkbox.element.checked = False
     await setSpendCS()
@@ -709,14 +1148,14 @@ async def checkPass():
 
     token = None
 
-    if not new_password_input.element.value:
+    if not (password := new_password_input.element.value):
         Element("pass-submit-button").element.disabled = False
         return False
     try:
         token = str(
             await password_decrypt(
                 str(await getData("TOKEN").then(lambda x: x)),
-                new_password_input.element.value,
+                password,
             )
         )
         new_password_input.clear()
@@ -733,7 +1172,7 @@ async def checkPass():
         Element("pass-submit-button").element.disabled = False
 
     if token:
-        await runWallet(token)
+        await runWallet(token, password)
 
 
 async def enter_password_event(e):
@@ -742,8 +1181,9 @@ async def enter_password_event(e):
             await checkPass()
 
 
-async def runWallet(TOKEN):
+async def runWallet(TOKEN, password):
     global txHistory
+    global WEB3_CONNECTED
     if txHistory:
         return
     Element("content-body").element.style.display = "none"
@@ -752,7 +1192,8 @@ async def runWallet(TOKEN):
     await asyncio.sleep(0.05)
 
     wallet = Wallet(TOKEN, api)
-    await wallet.initialize()
+    await wallet.initialize(password)
+    password = None
 
     txHistory = TransactionHistory(wallet)
 
@@ -772,6 +1213,9 @@ async def runWallet(TOKEN):
         Element("send-tab").element.style.webkitAlignItems = "center"
     else:
         Element("send-tab").element.style.alignItems = "center"
+
+    if browserName == "firefox":
+        Element("web3-tab-container").element.style.top = "35px"
 
     Element("loading").element.style.display = "none"
     Element("overview-button").element.style.backgroundColor = "#aeff00"
@@ -793,6 +1237,18 @@ async def runWallet(TOKEN):
         clearSendTab(),
     )
     idleTimer()
+    sub_modal()
+
+    sub_contract(txHistory.util.tokenAddr, to_js(abi, dict_converter=js.Object.fromEntries))
+
+    
+    web3_status = dict(acct_info().object_entries().to_py())
+
+    if web3_status["address"]:
+        WEB3_CONNECTED = True
+        await updateWghostBal()
+        
+    sub_account()
 
     if clientOS in ["Android", "iOS"]:
         screenHideEvent()
@@ -890,10 +1346,65 @@ async def expandSettings(setting):
         await txHistory.setExpanded(setting, True)
 
 
+async def expandSettingsWeb3(setting):
+    isClosing = txHistory.settingsExpanded[setting]
+    web3_tabs = ["web3-tab-item-wrap", "web3-tab-item-unwrap", "web3-tab-item-swap"]
+
+    await expandSettings(setting)
+    await asyncio.sleep(0)
+
+    fadeTime = 350
+    offset = Element(f'{setting}').element.offsetTop
+
+    for web3_tab in web3_tabs:
+        if web3_tab != setting and txHistory.settingsExpanded[web3_tab]:
+            await expandSettings(web3_tab)
+
+    if not isClosing:
+        js.jQuery(f"#web3-tab-container").animate(
+                to_js({"scrollTop": offset}, dict_converter=js.Object.fromEntries),
+                fadeTime,
+            )
+
+
 async def checkExplorer():
     selection = txHistory.wallet.options["explorer"]
 
     Element(f"{selection}").element.checked = True
+
+
+async def web3_state_change(data):
+    global WEB3_CONNECTED
+    status = dict(data.object_entries().to_py())
+
+    conn_status = status['isConnected']
+
+    if not conn_status and WEB3_CONNECTED:
+        setDoRefresh()
+        js.window.location.reload()
+    
+    elif not WEB3_CONNECTED and conn_status:
+        WEB3_CONNECTED = True
+        await updateWghostBal()
+
+
+async def web3_token_event(data):
+    global WEB3_CONNECTED
+    event = dict(data.object_entries().to_py())
+
+    if WEB3_CONNECTED:
+        status = dict(acct_info().object_entries().to_py())
+
+        if event['0']['args']['receiver'] == status['address']:
+            await updateWghostBal()
+
+
+async def web3_modal_open(data):
+    global WEB3_CONNECTED
+    event = dict(data.object_entries().to_py())
+    
+    if event['open']:
+        js.document.getElementsByTagName("body")[0].style.overflow = "visible"
 
 
 async def insertVets():
@@ -1500,6 +2011,7 @@ async def displayTx():
     await insertShowMoreTx()
 
     await updateBalanceDisplay()
+    await updateWghostBal()
 
 
 async def newTx(txData):
@@ -1555,6 +2067,7 @@ async def newTx(txData):
                 await processNewTx(networkTx)
                 await updateNextTxPage()
                 await updateBalanceDisplay()
+                await updateWghostBal()
                 break
             except Exception as e:
                 print(e)
@@ -1564,6 +2077,42 @@ async def newTx(txData):
                 else:
                     return
 
+
+async def updateWghostBal(delay=False):
+    global WEB3_CONNECTED
+
+    if not WEB3_CONNECTED:
+        return
+    
+    if delay:
+        await asyncio.sleep(delay)
+    
+    try:
+        evm_acct = dict(acct_info().object_entries().to_py())
+
+        contract_info = {
+        "address": evm_acct["address"],
+        "token": txHistory.util.tokenAddr,
+        "chainId": txHistory.util.evmChainId,
+        }
+        wghost_bal = await fetchBalancePoly(
+            to_js(contract_info, dict_converter=js.Object.fromEntries)
+        ).then(lambda d: d)
+        wghost_bal = dict(wghost_bal.object_entries().to_py())["value"]
+    except Exception as e:
+        print(e)
+
+    wghost_big_span = Element("wghost-bal-big")
+    wghost_small_span = Element("wghost-bal-small")
+
+    if not wghost_bal:
+        wghost_big_span.element.innerText = "0"
+        wghost_small_span.element.innerText = ".00"
+
+    else:
+        wghost_bal = str(round(txHistory.util.convertFromSat(wghost_bal), 8)).split('.')
+        wghost_big_span.element.innerText = f"{wghost_bal[0]}"
+        wghost_small_span.element.innerText = f".{wghost_bal[1] if len(wghost_bal) > 1 and wghost_bal[1] != '0' else '00'}"
 
 async def updateBalanceDisplay():
     await txHistory.walletCls.processUTXO()
@@ -2027,6 +2576,8 @@ async def doTranslation(requested_locale=None):
         locale_code = "sv"
     elif lang.lower() in ["zh", "zh-hk", "zh-cn", "zh-sg", "zh-tw"]:
         locale_code = "zh"
+    elif lang.lower() in ["hy"]:
+        locale_code = "hy"
 
     else:
         locale_code = "en"
@@ -2136,15 +2687,27 @@ async def doTranslation(requested_locale=None):
     Element("new-cs-spend-button").element.innerText = locale["new-cs-spend-button"]
     Element("menu-tab-item-version-label").element.innerText = VERSION
 
-    # translations for the "more" tab
+    # translations for the "web3" tab
 
-    # Element("more-in-development-header").element.innerText = locale[
-    #     "more-in-development-header"
-    # ]
-    # Element("more-li-1").element.innerText = locale["more-li-1"]
-    # Element("more-li-2").element.innerText = locale["more-li-2"]
-    # Element("more-li-3").element.innerText = locale["more-li-3"]
-    # Element("more-stay-tuned").element.innerText = locale["more-stay-tuned"]
+    Element("wghost-balance").element.innerText = f"wGHOST {locale['wghost-balance']}"
+    Element("web3-tab-item-wrap-label").element.innerText = locale['wrap']
+    Element("wrap-input-amount").element.placeholder = locale["send-tab-amount"]
+    Element("wrap-input-password").element.placeholder = locale["send-tab-password"]
+    Element("wrap-min-send").element.innerText = f"Min {locale['send-tab-send-button']}: 35 Ghost"
+    Element("wrap-min-wrap").element.innerText = f"Min {locale['wrap']}: 25 Ghost"
+    Element("bridge-fee-wrap-li").element.innerText = f"{locale['bridge-fee']}: 10 Ghost"
+    Element("wrap-button-wrap-label").element.innerText = locale['wrap']
+    Element("wrap-button-wrap-max-label").element.innerText = f"{locale['wrap']} Max"
+    Element("web3-tab-item-unwrap-label").element.innerText = locale['unwrap']
+    Element("unwrap-min-send").element.innerText = f"Min {locale['send-tab-send-button']}: 35 wGHOST"
+    Element("unwrap-min-unwrap").element.innerText = f"Min {locale['unwrap']}: 25 wGHOST"
+    Element("bridge-fee-unwrap-li").element.innerText = f"{locale['bridge-fee']}: 10 Ghost"
+    Element("wrap-button-unwrap-label").element.innerText = locale['unwrap']
+    Element("unwrap-input-amount").element.placeholder = locale["send-tab-amount"]
+    Element("wrap-button-uwrap-max-label").element.innerText = f"{locale['unwrap']} Max"
+    Element("web3-tab-item-swap-label").element.innerText = locale['web3-tab-item-swap-label']
+
+
 
     # define confirms dict
 
@@ -2195,6 +2758,10 @@ if __name__ == "__main__":
     # print(clientOS)
 
     MIN_TX = 1000  # 0.00001
+    MIN_BRIDGE = 2500000000
+    BRIDGE_FEE = 1000000000
+
+    WEB3_CONNECTED = False
 
     password_input = Element("new-pass-input")
     confirm_password_input = Element("new-pass-confirm")
@@ -2219,6 +2786,8 @@ if __name__ == "__main__":
         "orphaned": "icons/Orphaned-icon.png",
         "pool reward": "icons/Pool-staked-icon.png",
         "zap": "icons/Zap-icon.png",
+        "wrap": "icons/wrapped-icon.png",
+        "unwrap": "icons/unwrapped-icon.png",
     }
 
     explore_dict = {
@@ -2229,5 +2798,8 @@ if __name__ == "__main__":
 
     js.document.addEventListener("touchstart", handleTouchStart, False)
     js.document.addEventListener("touchmove", handleTouchMove, False)
+
+    with open("wghost_abi/abi.json", "r") as f:
+        abi = json.loads(f.read())
 
     asyncio.create_task(main())

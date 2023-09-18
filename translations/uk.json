@@ -75,5 +75,17 @@
     "type": "Тип",
     "input-addresses": "Вхідні адреси",
     "output-addresses": "Вихідні адреси",
-    "view-on-explorer": "Переглянути в провіднику"
+    "view-on-explorer": "Переглянути в провіднику",
+    "wghost-balance": "Баланс",
+    "wrap": "Загорнути",
+    "unwrap": "Розгорнути",
+    "bridge-fee": "Комісія за міст",
+    "coming-soon": "Незабаром!",
+    "web3-tab-item-swap-label": "Обміняти",
+    "confirm-wrapping-label": "Підтвердьте упаковку",
+    "to-Receive": "Отримати",
+    "fee": "Комісія",
+    "total-out": "Загальний вихід",
+    "please-confirm-unwrapping": "Підтвердьте розгортання",
+    "fail": "Невдача"
     }

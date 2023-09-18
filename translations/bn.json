@@ -75,5 +75,17 @@
     "type": "টাইপ",
     "input-addresses": "ইনপুট ঠিকানা",
     "output-addresses": "আউটপুট ঠিকানা",
-    "view-on-explorer": "Explorer এ দেখুন"
+    "view-on-explorer": "Explorer এ দেখুন",
+    "wghost-balance": "ভারসাম্য",
+    "wrap": "মোড়ানো",
+    "unwrap": "মোড়ক খুলুন",
+    "bridge-fee": "সেতু ফি",
+    "coming-soon": "শীঘ্রই আসছে!",
+    "web3-tab-item-swap-label": "অদলবদল",
+    "confirm-wrapping-label": "মোড়ানো নিশ্চিত করুন",
+    "to-Receive": "গ্রহণ করতে",
+    "fee": "ফি",
+    "total-out": "মোট আউট",
+    "please-confirm-unwrapping": "আনর্যাপিং নিশ্চিত করুন",
+    "fail": "ব্যর্থ"
     }

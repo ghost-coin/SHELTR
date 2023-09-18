@@ -1,9 +1,21 @@
-const bitcore = require('ghost-bitcore-lib');
-const Mnemonic = require('bitcore-mnemonic');
-const Message = require('ghost-bitcore-message');
+const bitcore = require("ghost-bitcore-lib");
+const Mnemonic = require("bitcore-mnemonic");
+const Message = require("ghost-bitcore-message");
+const Buffer = require("buffer").Buffer;
 
-var bech32 = require('bech32-buffer');
+var bech32 = require("bech32-buffer");
 
+if (typeof window !== "undefined") {
+  if (!window.Buffer) {
+    window.Buffer = Buffer;
+  }
+  if (!window.global) {
+    window.global = window;
+  }
+  if (!window.process) {
+    window.process = { env: {} };
+  }
+}
 
 signMessage = function (privKey, msg) {
   var privateKey = new bitcore.PrivateKey(privKey);
@@ -12,7 +24,69 @@ signMessage = function (privKey, msg) {
   var signature = message.sign(privateKey);
 
   console.log(signature);
+};
+
+let modalOpen = false;
+
+function setModalOpenState(data) {
+  modalOpen = data.open;
+  pything = pyscript.runtime.globals.get("web3_modal_open");
+
+  pything(data);
 }
+
+function setAccountState (data) {
+  pything = pyscript.runtime.globals.get("web3_state_change");
+
+  pything(data);
+}
+
+sub_modal = function () {
+  web3Modal.subscribeModal((data) => setModalOpenState(data));
+};
+
+sub_account = function () {
+  watch_account((account) => setAccountState(account));
+}
+
+
+function processMintEvent(data) {
+  pything = pyscript.runtime.globals.get("web3_token_event");
+
+  pything(data);
+}
+
+sub_contract = function(tokenAddr, abi){
+  watch_contract_event(
+    {
+      address: tokenAddr,
+      abi: abi,
+      eventName: 'WGhostMinted',
+    },
+    (data) => processMintEvent(data),
+  )
+}
+
+
+burn_wghost = async function(ghostAddr, amount, maxFeePerGas, maxPriorityFeePerGas, chainID, tokenAddr, abi) {
+  
+  const { hash } = await write_contract({
+    address: tokenAddr,
+    abi: abi,
+    functionName: 'burn',
+    args: [ghostAddr, amount],
+    chainId: chainID,
+})
+  return hash
+}
+
+
+let doRefresh = false;
+
+setDoRefresh = function(){
+  doRefresh = true;
+}
+
 
 address = function (inVal) {
   console.log(inVal);
@@ -25,72 +99,78 @@ address = function (inVal) {
 
   console.log(addressPK);
 
-  var derivedAddress = new bitcore.Address.fromPublicKey(addressPK.publicKey, bitcore.Networks.livenet, true).toString();
+  var derivedAddress = new bitcore.Address.fromPublicKey(
+    addressPK.publicKey,
+    bitcore.Networks.livenet,
+    true
+  ).toString();
 
   console.log(derivedAddress);
 
-
   var thing = address.toString();
-  return thing
+  return thing;
 };
 
 getXandY = function (pubKey) {
-
   var publicKey = new bitcore.PublicKey(pubKey);
   var point = publicKey.point;
   var x = point.getX();
   var y = point.getY();
 
   return { x, y };
-
-}
+};
 
 getMnemonic = function () {
-
   var code = new Mnemonic(Mnemonic.Words.ENGLISH);
   var words = code.toString();
 
-  return { "words": words }
-
+  return { words: words };
 };
 
 isValidMnemonic = function (words) {
-
   return Mnemonic.isValid(words);
 };
 
 importMnemonic = function (words, legacy_derive, passphrase) {
-
   var code = new Mnemonic(words);
   var x = code.toHDPrivateKey(passphrase);
   var hdPublicKey = x.hdPublicKey;
 
-  var derived = deriveAccount(x, legacy_derive)
+  var derived = deriveAccount(x, legacy_derive);
 
   return {
-    "xpriv": x, "xpub": hdPublicKey, "words": words, "derived_xpriv": derived.derived_xpriv, "derived_xpub": derived.derived_xpub,
-    "derived_xpriv_change": derived.derived_xpriv_change, "derived_xpub_change": derived.derived_xpub_change
-  }
-
+    xpriv: x,
+    xpub: hdPublicKey,
+    words: words,
+    derived_xpriv: derived.derived_xpriv,
+    derived_xpub: derived.derived_xpub,
+    derived_xpriv_change: derived.derived_xpriv_change,
+    derived_xpub_change: derived.derived_xpub_change,
+  };
 };
 
 deriveAccount = function (xpriv, legacy_derive) {
   var hdPrivateKey = new bitcore.HDPrivateKey(xpriv);
 
-  if (legacy_derive){
+  if (legacy_derive) {
     var derivedXpriv = hdPrivateKey.deriveChild("m/44'/44'/0'").deriveChild(0);
-    var derivedXpriv_change = hdPrivateKey.deriveChild("m/44'/44'/0'").deriveChild(1);
+    var derivedXpriv_change = hdPrivateKey
+      .deriveChild("m/44'/44'/0'")
+      .deriveChild(1);
   } else {
     var derivedXpriv = hdPrivateKey.deriveChild("m/44'/531'/0'").deriveChild(0);
-    var derivedXpriv_change = hdPrivateKey.deriveChild("m/44'/531'/0'").deriveChild(1);
+    var derivedXpriv_change = hdPrivateKey
+      .deriveChild("m/44'/531'/0'")
+      .deriveChild(1);
   }
 
   return {
-    "derived_xpriv": derivedXpriv, "derived_xpub": derivedXpriv.hdPublicKey,
-    "derived_xpriv_change": derivedXpriv_change, "derived_xpub_change": derivedXpriv_change.hdPublicKey
-  }
-
-}
+    derived_xpriv: derivedXpriv,
+    derived_xpub: derivedXpriv.hdPublicKey,
+    derived_xpriv_change: derivedXpriv_change,
+    derived_xpub_change: derivedXpriv_change.hdPublicKey,
+  };
+};
 
 getAddrFromXpriv = function (xpriv, index) {
   var hdPrivateKey = new bitcore.HDPrivateKey(xpriv);
@@ -102,45 +182,48 @@ getAddrFromXpriv = function (xpriv, index) {
   //}
 
   // var address = new bitcore.Address(hdPublicKey.publicKey, bitcore.Networks.livenet);
-  var derivedAddress = new bitcore.Address(hdPublicKey.deriveChild(index).publicKey, bitcore.Networks.livenet);
+  var derivedAddress = new bitcore.Address(
+    hdPublicKey.deriveChild(index).publicKey,
+    bitcore.Networks.livenet
+  );
   //var derivedPrivAddress = hdPrivateKey.derive(index).privateKey.toWIF(); // see deprecation warning for derive
 
-  return derivedAddress
+  return derivedAddress;
 };
 
 getAddrFromXpub = function (xpub, index, is256 = false) {
   var hdPublicKey = new bitcore.HDPublicKey(xpub);
-  var derivedAddress = new bitcore.Address.fromPublicKey(hdPublicKey.deriveChild(index).publicKey, bitcore.Networks.livenet, is256).toString();
+  var derivedAddress = new bitcore.Address.fromPublicKey(
+    hdPublicKey.deriveChild(index).publicKey,
+    bitcore.Networks.livenet,
+    is256
+  ).toString();
 
-  return derivedAddress
+  return derivedAddress;
 };
-
 
 buildColdstakeScript = function (spendAddr, stakeAddr) {
-
   var script = bitcore.Script.buildPublicKeyHashOut256(spendAddr, stakeAddr);
-  return script.toHex()
+  return script.toHex();
 };
-
 
 getPrivKeyFromXpriv = function (xpriv, index) {
   var hdPrivateKey = new bitcore.HDPrivateKey(xpriv);
 
   var derivedPrivAddress = hdPrivateKey.deriveChild(index).privateKey.toWIF(); // see deprecation warning for derive
 
-  return derivedPrivAddress
+  return derivedPrivAddress;
 };
-
 
 getPubKeyFromXpub = function (xpub, index) {
   var hdPublicKey = new bitcore.HDPublicKey(xpub);
   var derivedAddress = hdPublicKey.deriveChild(index).publicKey.toString();
 
-  return derivedAddress
+  return derivedAddress;
 };
 
-const dbName = 'SHELTRdb';
-const objectStoreName = 'SHELTRObjectStore';
+const dbName = "SHELTRdb";
+const objectStoreName = "SHELTRObjectStore";
 const dbVersion = 1;
 
 const openRequest = indexedDB.open(dbName, dbVersion);
@@ -150,14 +233,13 @@ openRequest.onupgradeneeded = function (event) {
   db.createObjectStore(objectStoreName);
 };
 
-
 storeData = function (key, value) {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(dbName);
 
     request.onsuccess = function (event) {
       const db = event.target.result;
-      const transaction = db.transaction([objectStoreName], 'readwrite');
+      const transaction = db.transaction([objectStoreName], "readwrite");
       const objectStore = transaction.objectStore(objectStoreName);
 
       const putRequest = objectStore.put(value, key);
@@ -187,14 +269,14 @@ getData = function (key) {
   return new Promise(function (resolve, reject) {
     request.onsuccess = function (event) {
       const db = event.target.result;
-      const transaction = db.transaction([objectStoreName], 'readonly');
+      const transaction = db.transaction([objectStoreName], "readonly");
       const objectStore = transaction.objectStore(objectStoreName);
 
       const getRequest = objectStore.get(key);
 
       getRequest.onsuccess = function (event) {
         const value = getRequest.result;
-        if (typeof value !== 'undefined') {
+        if (typeof value !== "undefined") {
           resolve(value);
         } else {
           resolve(null);
@@ -214,9 +296,15 @@ getData = function (key) {
   });
 };
 
-
-
-generateTx = function (utxos, changeAddress, toAddress, privateKey, amount, fee, stakeAddr = false) {
+generateTx = function (
+  utxos,
+  changeAddress,
+  toAddress,
+  privateKey,
+  amount,
+  fee,
+  stakeAddr = false
+) {
   const tx = bitcore.Transaction();
   tx.from(utxos);
   tx.to(toAddress, amount);
@@ -236,15 +324,24 @@ generateTx = function (utxos, changeAddress, toAddress, privateKey, amount, fee,
   return tx;
 };
 
-generateTxScript = function (utxos, changeAddress, scriptArray, privateKey, fee, stakeAddr) {
+generateTxScript = function (
+  utxos,
+  changeAddress,
+  scriptArray,
+  privateKey,
+  fee,
+  stakeAddr
+) {
   const tx = new bitcore.Transaction();
   tx.from(utxos);
 
   scriptArray.forEach(([outScript, amount]) => {
-    tx.addOutput(bitcore.Transaction.Output({
-      script: outScript,
-      satoshis: amount
-    }));
+    tx.addOutput(
+      bitcore.Transaction.Output({
+        script: outScript,
+        satoshis: amount,
+      })
+    );
   });
 
   tx.change(changeAddress, stakeAddr);
@@ -258,6 +355,37 @@ generateTxScript = function (utxos, changeAddress, scriptArray, privateKey, fee,
   return tx;
 };
 
+generateWrapTx = function (
+  utxos,
+  data,
+  changeAddress,
+  lockAddr,
+  bridgeFeeAddr,
+  privateKey,
+  amountLock,
+  amountBridgeFee,
+  fee,
+  stakeAddr = false
+) {
+  const tx = bitcore.Transaction(data);
+  tx.from(utxos);
+  tx.to(lockAddr, amountLock);
+  tx.to(bridgeFeeAddr, amountBridgeFee);
+
+  if (stakeAddr) {
+    tx.change(changeAddress, stakeAddr);
+  } else {
+    tx.change(changeAddress);
+  }
+  tx.fee(fee);
+  try {
+    tx.sign(privateKey);
+    //tx.serialize();
+  } catch (err) {
+    throw new Error(`Could not sign & serialize transaction: ${err}`);
+  }
+  return tx;
+};
 
 estimateFee = function (utxos, changeAddress, toAddress, amount) {
   const tx = bitcore.Transaction();
@@ -266,30 +394,32 @@ estimateFee = function (utxos, changeAddress, toAddress, amount) {
   tx.change(changeAddress);
 
   return tx.getFee();
-
 };
 
 estimateFeeScript = function (utxos, changeAddress, scriptArray) {
   const tx = bitcore.Transaction();
   tx.from(utxos);
   scriptArray.forEach(([outScript, amount]) => {
-    tx.addOutput(bitcore.Transaction.Output({
-      script: outScript,
-      satoshis: amount
-    }));
+    tx.addOutput(
+      bitcore.Transaction.Output({
+        script: outScript,
+        satoshis: amount,
+      })
+    );
   });
   tx.change(changeAddress);
 
   return tx.getFee();
-
 };
-
 
 let disconnectFn;
 
 txMonitor = function (urls) {
-  eventToListenTo = 'room_message'
-  room = { "username": Math.floor(Math.random() * 100000000).toString(), "room": "tx" }
+  eventToListenTo = "room_message";
+  room = {
+    username: Math.floor(Math.random() * 100000000).toString(),
+    room: "tx",
+  };
 
   var socket;
   var connected = false;
@@ -301,11 +431,11 @@ txMonitor = function (urls) {
 
     //console.log('Trying to connect to ' + urls[urlIndex]);
     socket = io(urls[urlIndex]);
-    socket.on('connect', function () {
+    socket.on("connect", function () {
       //console.log('Connected to ' + urls[urlIndex]);
       if (!connected) {
         // Join the room.
-        socket.emit('join', room, function (response) {
+        socket.emit("join", room, function (response) {
           //console.log('Joined room', response);
         });
         connected = true;
@@ -313,10 +443,10 @@ txMonitor = function (urls) {
     });
     socket.on(eventToListenTo, function (data) {
       //console.log('Received message', data);
-      pything = pyscript.runtime.globals.get('newTx');
+      pything = pyscript.runtime.globals.get("newTx");
       pything(data);
     });
-    socket.on('disconnect', function () {
+    socket.on("disconnect", function () {
       socket.disconnect();
       connected = false;
       // Try to reconnect.
@@ -333,48 +463,49 @@ txMonitor = function (urls) {
   // Assign the disconnect method to the variable.
   disconnectFn = function () {
     socket.disconnect();
-  }
+  };
 };
-
-
 
 disconnectSocket = function () {
   disconnectFn();
-}
+};
 
 let disconnectFnAnon;
 
 txMonitorAnon = function () {
-  eventToListenTo = 'anon'
-  room = { "username": Math.floor(Math.random() * 100000000).toString(), "room": "tx" }
+  eventToListenTo = "anon";
+  room = {
+    username: Math.floor(Math.random() * 100000000).toString(),
+    room: "tx",
+  };
 
   var socket = io("http://127.0.0.1:5000/");
   //var socket = io("https://api.tuxprint.com:52556/");
-  socket.on('connect', function () {
+  socket.on("connect", function () {
     // Join the room.
-    socket.emit('join', room);
-  })
+    socket.emit("join", room);
+  });
   socket.on(eventToListenTo, function (data) {
     console.log(data);
     //pything = pyscript.runtime.globals.get('newTx');
     //pything(data);
-  })
+  });
 
   socket.on("room_message", function (data) {
     console.log(data);
     //pything = pyscript.runtime.globals.get('newTx');
     //pything(data);
-  })
+  });
 
   // Assign the disconnect method to the variable.
   disconnectFnAnon = function () {
     socket.disconnect();
-  }
+  };
 };
 
 disconnectSocketAnon = function () {
   disconnectFnAnon();
-}
+};
 
 browserType = function () {
   let userAgent = navigator.userAgent;
@@ -396,7 +527,7 @@ browserType = function () {
     browserName = "opera";
   } else {
     browserName = "No browser detection";
-  };
+  }
 
   return browserName;
 };
@@ -417,73 +548,67 @@ getOS = function () {
     os = "iOS";
   } else {
     os = "No os detected";
-  };
+  }
 
   return os;
 };
 
 validateAddress = function (addr) {
-
-  return bitcore.Address.isValid(addr)
-
+  return bitcore.Address.isValid(addr);
 };
 
 isValidAddr256 = function (addr) {
-
   if (bitcore.Address.isValid(addr)) {
-    return bitcore.Address(addr).isPayToPublicKeyHash256()
+    return bitcore.Address(addr).isPayToPublicKeyHash256();
   } else {
-    return false
-  };
+    return false;
+  }
 };
 
 isValidURI = function (uri) {
   return bitcore.URI.isValid(uri);
-}
-
+};
 
 decodeURI = function (uriString) {
   var uri = new bitcore.URI(uriString);
 
-  return { "address": uri.address.toString(), "amount": uri.amount }
-}
+  return { address: uri.address.toString(), amount: uri.amount };
+};
 
 getCsAddrInfo = function (coldStakingAddress) {
   try {
     var addr = bech32.decode(coldStakingAddress);
     csa = {
-      hashBuffer: Buffer.from(addr.data)
+      hashBuffer: Buffer.from(addr.data),
     };
     if (addr.prefix == "gcs") {
       return {
-        "isValid": true,
-        "type": "bech32"
-      }
+        isValid: true,
+        type: "bech32",
+      };
     } else {
-      return { "isValid": false }
+      return { isValid: false };
     }
   } catch {
     try {
-      bitcore.HDPublicKey(coldStakingAddress)
+      bitcore.HDPublicKey(coldStakingAddress);
       return {
-        "isValid": true,
-        "type": "xpub"
-      }
+        isValid: true,
+        type: "xpub",
+      };
     } catch {
-      return { "isValid": false }
+      return { isValid: false };
     }
   }
 };
 
-
-
 clickTXIDjs = function (txid) {
-  pything = pyscript.runtime.globals.get('clickTXID');
+  pything = pyscript.runtime.globals.get("clickTXID");
   pything(txid);
 };
 
 copyUsedAddrjs = function (addr) {
-  pything = pyscript.runtime.globals.get('copyUsedAddr');
+  pything = pyscript.runtime.globals.get("copyUsedAddr");
   pything(addr);
 };
 
@@ -514,15 +639,18 @@ handleTouchMove = function (evt) {
   xDiff = xDown - xUp;
   yDiff = yDown - yUp;
 
-  if (Math.abs(xDiff) > MIN_SWIPE_DISTANCE || Math.abs(yDiff) > MIN_SWIPE_DISTANCE) {
+  if (
+    Math.abs(xDiff) > MIN_SWIPE_DISTANCE ||
+    Math.abs(yDiff) > MIN_SWIPE_DISTANCE
+  ) {
     if (Math.abs(xDiff) > Math.abs(yDiff)) {
       if (xDiff > 0) {
         //console.log("Left swipe detected");
-        pything = pyscript.runtime.globals.get('swipeLeft');
+        pything = pyscript.runtime.globals.get("swipeLeft");
         pything();
       } else {
         //console.log("Right swipe detected");
-        pything = pyscript.runtime.globals.get('swipeRight');
+        pything = pyscript.runtime.globals.get("swipeRight");
         pything();
       }
     } else {
@@ -538,65 +666,65 @@ handleTouchMove = function (evt) {
   yDown = null;
 };
 
-
 poolRadio = function (thing) {
-  pything = pyscript.runtime.globals.get('setPoolOption');
+  pything = pyscript.runtime.globals.get("setPoolOption");
   pything(thing.value);
-}
-
+};
 
 doZapjs = function () {
-  pything = pyscript.runtime.globals.get('doZap');
+  pything = pyscript.runtime.globals.get("doZap");
   pything();
-}
+};
 
 txInfojs = function (txid) {
-  pything = pyscript.runtime.globals.get('txInfo');
+  pything = pyscript.runtime.globals.get("txInfo");
   pything(txid);
-}
-
+};
 
 fiatRadio = function (thing) {
-  pything = pyscript.runtime.globals.get('setFiatOption');
+  pything = pyscript.runtime.globals.get("setFiatOption");
   pything(thing.value);
-}
+};
 
 csAddrRadio = function (thing) {
-  pything = pyscript.runtime.globals.get('setSpendAddr');
+  pything = pyscript.runtime.globals.get("setSpendAddr");
   pything(thing.value);
-}
+};
 
 explorerRadio = function (thing) {
-  pything = pyscript.runtime.globals.get('setExplorerOption');
+  pything = pyscript.runtime.globals.get("setExplorerOption");
   pything(thing.value);
-}
+};
 
 langRadio = function (thing) {
-  pything = pyscript.runtime.globals.get('setLangOption');
+  pything = pyscript.runtime.globals.get("setLangOption");
   pything(thing.value);
-}
+};
 
 closeMessageBox = function (isTxSuccess = false) {
-  pything = pyscript.runtime.globals.get('closeMessageBox');
+  pything = pyscript.runtime.globals.get("closeMessageBox");
 
   if (!isTxSuccess) {
     pything();
   } else {
-    pything(true)
+    pything(true);
   }
-
-}
+};
 
 finalizeSendTx = function () {
-  pything = pyscript.runtime.globals.get('finalizeSendTx');
+  pything = pyscript.runtime.globals.get("finalizeSendTx");
   pything();
+};
 
-}
+finalizeSendBurnTxjs = function (ghostAddr, amount) {
+  pything = pyscript.runtime.globals.get("finalizeSendBurnTx");
+  pything(ghostAddr, amount);
+};
 
 getNextTxPagejs = function () {
-  pything = pyscript.runtime.globals.get('getNextTxPage');
+  pything = pyscript.runtime.globals.get("getNextTxPage");
   pything();
-}
+};
 
 var screenHideTime = 0;
 var idleTime = 0;
@@ -605,15 +733,15 @@ var hiddenStartTime = 0;
 window.onbeforeunload = function () {
   console.log(isDupe);
 
-  if (idleTime >= 10 || screenHideTime >= 5) {
-    return
-  };
+  if (idleTime >= 10 || screenHideTime >= 5 || modalOpen || doRefresh) {
+    doRefresh = false;
+    return;
+  }
 
   if (!isDupe) {
     return "Dude, are you sure you want to leave? Think of the kittens!";
-  };
-}
-
+  }
+};
 
 idleTimer = function () {
   $(document).ready(function () {
@@ -630,16 +758,16 @@ idleTimer = function () {
       //console.log("key press");
     });
   });
-}
+};
 
 function timerIncrement() {
   idleTime = idleTime + 1;
   //console.log("plus one min");
-  if (idleTime >= 10) { // 10 minutes
+  if (idleTime >= 10) {
+    // 10 minutes
     window.location.reload();
   }
 }
-
 
 screenHideEvent = function () {
   $(document).ready(function () {
@@ -663,17 +791,16 @@ screenHideEvent = function () {
           screenHideTime = 0;
         }
       }
-
     });
   });
-}
-
+};
 
 function screenHideTimerIncrement() {
   if (document.hidden) {
     //console.log("screen been hidden for a minute.")
     screenHideTime = screenHideTime + 1;
-    if (screenHideTime >= 5) { // 5 minutes
+    if (screenHideTime >= 5) {
+      // 5 minutes
       // Perform the action
       console.log("The screen has been hidden for 4.5 minutes");
       window.location.reload();
@@ -689,14 +816,19 @@ let html5QrcodeScanner;
 scanQRCode = function () {
   html5QrcodeScanner = new Html5QrcodeScanner(
     "camera-stream",
-    { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 0.75, direction: "environment" },
+    {
+      fps: 10,
+      qrbox: { width: 250, height: 250 },
+      aspectRatio: 0.75,
+      direction: "environment",
+    },
     false
   );
 
   html5QrcodeScanner.render(
     (qrCodeMessage) => {
       console.log(`QR code detected: ${qrCodeMessage}`);
-      pything = pyscript.runtime.globals.get('parseScanner');
+      pything = pyscript.runtime.globals.get("parseScanner");
       pything(qrCodeMessage);
       //stopScanner();
     },

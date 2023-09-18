@@ -75,5 +75,17 @@
     "type": "Jenis",
     "input-addresses": "Alamat Masukan",
     "output-addresses": "Alamat Keluaran",
-    "view-on-explorer": "Lihat Di Explorer"
+    "view-on-explorer": "Lihat Di Explorer",
+    "wghost-balance": "Keseimbangan",
+    "wrap": "Membungkus",
+    "unwrap": "Membuka",
+    "bridge-fee": "Biaya Jembatan",
+    "coming-soon": "Segera hadir!",
+    "web3-tab-item-swap-label": "Menukar",
+    "confirm-wrapping-label": "Mohon Konfirmasi Pembungkusnya",
+    "to-Receive": "Menerima",
+    "fee": "Biaya",
+    "total-out": "Keluar Total",
+    "please-confirm-unwrapping": "Harap Konfirmasi Pembukaan Bungkusnya",
+    "fail": "Gagal"
     }
