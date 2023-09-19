@@ -25,7 +25,6 @@ import js, pyodide
 
 from pyscript import Element
 
-GAP_LIMIT = 20
 
 
 class TransactionHistory:
@@ -622,8 +621,8 @@ class Util:
                     self.wallet.change_addresses += transLst[: topIndex + 1]
                     self.wallet.change_lookahead_addresses = transLst[topIndex + 1 :]
 
-                    if len(self.wallet.change_lookahead_addresses) < GAP_LIMIT:
-                        diffAmt = GAP_LIMIT - len(
+                    if len(self.wallet.change_lookahead_addresses) < self.wallet.gap_limit:
+                        diffAmt = self.wallet.gap_limit - len(
                             self.wallet.change_lookahead_addresses
                         )
                         self.wallet.change_lookahead_addresses += (
@@ -640,8 +639,8 @@ class Util:
                         self.wallet.receiving_addresses_256 += transLst[: topIndex + 1]
                         self.wallet.lookahead_addresses_256 = transLst[topIndex + 1 :]
 
-                        if len(self.wallet.lookahead_addresses_256) < GAP_LIMIT:
-                            diffAmt = GAP_LIMIT - len(
+                        if len(self.wallet.lookahead_addresses_256) < self.wallet.gap_limit:
+                            diffAmt = self.wallet.gap_limit - len(
                                 self.wallet.lookahead_addresses_256
                             )
                             self.wallet.lookahead_addresses_256 += (
@@ -666,8 +665,8 @@ class Util:
                         self.wallet.receiving_addresses += transLst[: topIndex + 1]
                         self.wallet.lookahead_addresses = transLst[topIndex + 1 :]
 
-                        if len(self.wallet.lookahead_addresses) < GAP_LIMIT:
-                            diffAmt = GAP_LIMIT - len(self.wallet.lookahead_addresses)
+                        if len(self.wallet.lookahead_addresses) < self.wallet.gap_limit:
+                            diffAmt = self.wallet.gap_limit - len(self.wallet.lookahead_addresses)
                             self.wallet.lookahead_addresses += await self.getAddresses(
                                 len(self.wallet.master_address_list),
                                 (len(self.wallet.master_address_list) + diffAmt),
