@@ -58,7 +58,7 @@ import re, math, random
 
 import SHELTRpy.ecc
 
-VERSION = "v0.6.3b"
+VERSION = "v0.7.0b"
 
 api = Api()
 
