@@ -16,23 +16,31 @@ from binascii import unhexlify
 from pyscript import Element
 
 
-GAP_LIMIT = 20
-
+class ImportWalletFromDump:
+    def __init__(self, core_dump) -> None:
+        self.dump = core_dump
+        self.derived_xpub = core_dump['accounts'][0]['chains'][0]['chain']
+        self.derived_xpriv = core_dump['accounts'][0]['chains'][0]['evkey']
+        self.xpub = "IMPORTFROMDUMP"
+        self.xpriv = "IMPORTFROMDUMP"
+        self.words = "IMPORTFROMDUMP"
+        self.derived_xpub_change = core_dump['accounts'][0]['chains'][1]['chain']
+        self.derived_xpriv_change = core_dump['accounts'][0]['chains'][1]['evkey']
 
 class ImportWallet:
     def __init__(self, wallet: dict):
         self.wallet = wallet
         self.wallet["receiving_addresses"] = self.getAddresses(0, 1)
-        self.wallet["lookahead_addresses"] = self.getAddresses(1, GAP_LIMIT + 1)
+        self.wallet["lookahead_addresses"] = self.getAddresses(1, wallet['gap_limit'] + 1)
         self.wallet["receiving_addresses_256"] = self.getAddresses(0, 1, is256=True)
         self.wallet["lookahead_addresses_256"] = self.getAddresses(
-            1, GAP_LIMIT + 1, is256=True
+            1, wallet['gap_limit'] + 1, is256=True
         )
         self.wallet["change_addresses"] = self.getAddresses(
             0, 1, is256=False, isChange=True
         )
         self.wallet["change_lookahead_addresses"] = self.getAddresses(
-            1, GAP_LIMIT + 1, is256=False, isChange=True
+            1, wallet['gap_limit'] + 1, is256=False, isChange=True
         )
 
     def getAddresses(self, startIdx, endIdx, is256=False, isChange=False):
@@ -63,6 +71,10 @@ class Wallet:
         self.checkIntegrity()
 
         await self.rotate_token(password)
+
+        if "gap_limit" not in dir(self.wallet):
+            self.wallet.gap_limit = 20
+            await self.flushWallet()
 
     async def rotate_token(self, password):
         new_token = getToken()

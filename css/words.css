@@ -399,7 +399,7 @@ html {
   grid-template-columns: 100px 100px 100px;  
   grid-template-rows: 50px 50px; 
   width: 373px;
-  height: 265px;
+  height: 285px;
   transform: translate(-50%, -50%);
   margin: 0 auto;
   border: 1px solid #aeff00;
@@ -418,8 +418,9 @@ html {
 }
 
 .legacy_derive {
-    width: 1.3em;
-    height: 1.3em;
+    width: 1.1em;
+    height: 1.1em;
+    margin-top: 5px;
     background-color: #232728;
     border-radius: 50%;
     vertical-align: middle;
