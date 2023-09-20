@@ -1446,8 +1446,8 @@ async def web3_modal_open(data):
     global WEB3_CONNECTED
     event = dict(data.object_entries().to_py())
     
-    if event['open']:
-        js.document.getElementsByTagName("body")[0].style.overflow = "visible"
+    # if event['open']:
+        # js.document.getElementsByTagName("body")[0].style.overflow = "visible"
 
 
 async def insertVets():
