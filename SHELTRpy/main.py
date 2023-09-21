@@ -45,7 +45,7 @@ from js import (
 
 from SHELTRpy.ghostCrypto import password_decrypt, password_encrypt, getToken
 
-from SHELTRpy.wallet import ImportWallet, Wallet
+from SHELTRpy.wallet import ImportWallet, Wallet, ImportWalletFromDump
 from SHELTRpy.insight_api import Api
 
 
@@ -58,7 +58,7 @@ import re, math, random
 
 import SHELTRpy.ecc
 
-VERSION = "v0.6.3b"
+VERSION = "v0.7.0b"
 
 api = Api()
 
@@ -189,12 +189,43 @@ def add_password_event(e):
         Element("new-pass-confirm").element.style.background = ""
 
 
+def process_wallet_dump():
+    dump = import_word_text.element.value.strip().split("\n")
+
+    if dump[0].startswith("# Wallet dump created by Ghost"):
+        try:
+            dump_str = ''
+            for line in dump:
+                if line.startswith("#"):
+                    if line.startswith("# --- End JSON ---"):
+                        break
+                    continue
+
+                dump_str += line
+
+            dumped_wallet =  json.loads(dump_str)
+
+            imported_wallet = ImportWalletFromDump(dumped_wallet)
+            return imported_wallet
+        
+        except Exception as e:
+            print(e)
+
+    return False
+
+
 def check_words_event(e):
     words = import_word_text.element.value.strip()
 
     try:
         if isValidMnemonic(words.lower()):
             Element("import-word-button").element.disabled = False
+
+            if len(words.split(" ")) > 12:
+                Element("max_gap_limit").element.checked = True     
+        elif process_wallet_dump():
+            Element("import-word-button").element.disabled = False
+            Element("max_gap_limit").element.checked = True
         else:
             Element("import-word-button").element.disabled = True
     except:
@@ -214,11 +245,21 @@ async def importWords():
     await asyncio.sleep(0.1)
 
     words = import_word_text.element.value.strip()
-    mnemonic = importMnemonic(words.lower(), use_legacy, passphrase)
-    Element("loading").element.style.display = "none"
-    Element("set-password").element.style.display = "block"
-    await asyncio.sleep(0.1)
-    import_word_text.clear()
+
+    if isValidMnemonic(words.lower()):
+        mnemonic = importMnemonic(words.lower(), use_legacy, passphrase)
+        Element("loading").element.style.display = "none"
+        Element("set-password").element.style.display = "block"
+        await asyncio.sleep(0.1)
+        import_word_text.clear()
+        
+    else:
+        
+        mnemonic = process_wallet_dump()
+        Element("loading").element.style.display = "none"
+        Element("set-password").element.style.display = "block"
+        await asyncio.sleep(0.1)
+        import_word_text.clear()
 
 
 async def getMax():
@@ -1062,6 +1103,7 @@ async def genWallet():
     Element("new-pass-button").element.disabled = True
     Element("loading").element.style.display = "block"
     Element("set-password").element.style.display = "none"
+    gap_option = Element("max_gap_limit").element.checked
 
     loading_message.element.innerText = "Generating wallet..."
     await asyncio.sleep(0.1)
@@ -1076,6 +1118,7 @@ async def genWallet():
         "change_lookahead_addresses": [],
         "change_master_address_list": [],
         "used_addresses": [],
+        "gap_limit": 64 if gap_option else 20,
         "master_xpub": str(mnemonic.xpub),
         "master_xpriv": str(
             await password_encrypt(
@@ -1403,8 +1446,8 @@ async def web3_modal_open(data):
     global WEB3_CONNECTED
     event = dict(data.object_entries().to_py())
     
-    if event['open']:
-        js.document.getElementsByTagName("body")[0].style.overflow = "visible"
+    # if event['open']:
+        # js.document.getElementsByTagName("body")[0].style.overflow = "visible"
 
 
 async def insertVets():
@@ -2111,7 +2154,7 @@ async def updateWghostBal(delay=False):
 
     else:
         wghost_bal = str(round(txHistory.util.convertFromSat(wghost_bal), 8)).split('.')
-        wghost_big_span.element.innerText = f"{wghost_bal[0]}"
+        wghost_big_span.element.innerText = f"{int(wghost_bal[0]):,}"
         wghost_small_span.element.innerText = f".{wghost_bal[1] if len(wghost_bal) > 1 and wghost_bal[1] != '0' else '00'}"
 
 async def updateBalanceDisplay():

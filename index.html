@@ -39,9 +39,9 @@
 
         
       
-    <link rel="stylesheet" href="/css/words.css?v=1.2" />
-    <link rel="stylesheet" href="/css/style.css?v=1.0" />
-    <link rel="stylesheet" href="/css/main_window.css?v=1.2" />
+    <link rel="stylesheet" href="/css/words.css?v=1.3" />
+    <link rel="stylesheet" href="/css/style.css?v=1.1" />
+    <link rel="stylesheet" href="/css/main_window.css?v=1.3" />
 
     <py-config>
       terminal = false
@@ -211,10 +211,16 @@
       <form class="import-word-form" id="import-word-form">
         <img class="sheltr-logo-import" src="icons/SHELTR_LOGO.png"/>
         <textarea class="import-word-text" id="import-word-text" rows="3" cols="54" style="resize: none;" name="import-word"></textarea>
-        <br>
+        <div class="spacer-25px">
+          
+        </div>
         <div class="check-container">
           <input type="checkbox" class="legacy_derive" id="legacy_derive" name="legacy-derive" value="Bike" />
           <label for="legacy_derive"> Use Legacy Derivation</label><br>
+        </div>
+        <div class="check-container">
+          <input type="checkbox" class="legacy_derive" id="max_gap_limit" name="legacy-derive" value="car" />
+          <label for="max_gap_limit"> Core/Desktop Import</label><br>
         </div>
         <input type="text" class="words-passphrase" id="words-passphrase" placeholder="Optional Extra Words"/>
         <button class="import-word-button" id="import-word-button" py-click="asyncio.create_task(importWords())" type="button" disabled>Submit</button>    
