@@ -58,7 +58,7 @@ import re, math, random
 
 import SHELTRpy.ecc
 
-VERSION = "v0.7.0b"
+VERSION = "v0.7.1b"
 
 api = Api()
 
@@ -2736,15 +2736,15 @@ async def doTranslation(requested_locale=None):
     Element("web3-tab-item-wrap-label").element.innerText = locale['wrap']
     Element("wrap-input-amount").element.placeholder = locale["send-tab-amount"]
     Element("wrap-input-password").element.placeholder = locale["send-tab-password"]
-    Element("wrap-min-send").element.innerText = f"Min {locale['send-tab-send-button']}: 35 Ghost"
-    Element("wrap-min-wrap").element.innerText = f"Min {locale['wrap']}: 25 Ghost"
-    Element("bridge-fee-wrap-li").element.innerText = f"{locale['bridge-fee']}: 10 Ghost"
+    Element("wrap-min-send").element.innerText = f"Min {locale['send-tab-send-button']}: 2 Ghost"
+    Element("wrap-min-wrap").element.innerText = f"Min {locale['wrap']}: 1 Ghost"
+    Element("bridge-fee-wrap-li").element.innerText = f"{locale['bridge-fee']}: 1 Ghost"
     Element("wrap-button-wrap-label").element.innerText = locale['wrap']
     Element("wrap-button-wrap-max-label").element.innerText = f"{locale['wrap']} Max"
     Element("web3-tab-item-unwrap-label").element.innerText = locale['unwrap']
-    Element("unwrap-min-send").element.innerText = f"Min {locale['send-tab-send-button']}: 35 wGHOST"
-    Element("unwrap-min-unwrap").element.innerText = f"Min {locale['unwrap']}: 25 wGHOST"
-    Element("bridge-fee-unwrap-li").element.innerText = f"{locale['bridge-fee']}: 10 Ghost"
+    Element("unwrap-min-send").element.innerText = f"Min {locale['send-tab-send-button']}: 2 wGHOST"
+    Element("unwrap-min-unwrap").element.innerText = f"Min {locale['unwrap']}: 1 wGHOST"
+    Element("bridge-fee-unwrap-li").element.innerText = f"{locale['bridge-fee']}: 1 Ghost"
     Element("wrap-button-unwrap-label").element.innerText = locale['unwrap']
     Element("unwrap-input-amount").element.placeholder = locale["send-tab-amount"]
     Element("wrap-button-uwrap-max-label").element.innerText = f"{locale['unwrap']} Max"
@@ -2801,8 +2801,8 @@ if __name__ == "__main__":
     # print(clientOS)
 
     MIN_TX = 1000  # 0.00001
-    MIN_BRIDGE = 2500000000
-    BRIDGE_FEE = 1000000000
+    MIN_BRIDGE = 100000000
+    BRIDGE_FEE = 100000000
 
     WEB3_CONNECTED = False
 
