@@ -21,7 +21,7 @@
     <script>
     // Wait for the module to load before accessing its exports
     window.addEventListener('load', async () => {
-      const { web3Modal, acct_info } = await import("/SHELTRjs/web3Connect.js");
+      const { web3Modal, acct_info } = await import("/SHELTRjs/web3Connect.js?v=1.0");
       window.web3Modal = web3Modal;
 
       // Now you can use web3Modal here

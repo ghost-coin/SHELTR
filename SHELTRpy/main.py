@@ -58,7 +58,7 @@ import re, math, random
 
 import SHELTRpy.ecc
 
-VERSION = "v0.7.1b"
+VERSION = "v0.7.2b"
 
 api = Api()
 
@@ -194,7 +194,7 @@ def process_wallet_dump():
 
     if dump[0].startswith("# Wallet dump created by Ghost"):
         try:
-            dump_str = ''
+            dump_str = ""
             for line in dump:
                 if line.startswith("#"):
                     if line.startswith("# --- End JSON ---"):
@@ -203,11 +203,11 @@ def process_wallet_dump():
 
                 dump_str += line
 
-            dumped_wallet =  json.loads(dump_str)
+            dumped_wallet = json.loads(dump_str)
 
             imported_wallet = ImportWalletFromDump(dumped_wallet)
             return imported_wallet
-        
+
         except Exception as e:
             print(e)
 
@@ -222,7 +222,7 @@ def check_words_event(e):
             Element("import-word-button").element.disabled = False
 
             if len(words.split(" ")) > 12:
-                Element("max_gap_limit").element.checked = True     
+                Element("max_gap_limit").element.checked = True
         elif process_wallet_dump():
             Element("import-word-button").element.disabled = False
             Element("max_gap_limit").element.checked = True
@@ -252,9 +252,8 @@ async def importWords():
         Element("set-password").element.style.display = "block"
         await asyncio.sleep(0.1)
         import_word_text.clear()
-        
+
     else:
-        
         mnemonic = process_wallet_dump()
         Element("loading").element.style.display = "none"
         Element("set-password").element.style.display = "block"
@@ -741,7 +740,7 @@ async def doUnwrapTx(do_max=0):
         send_button_send_tab.element.disabled = False
         zap_button.element.disabled = False
         return
-    
+
     Element(
         "message-box"
     ).element.innerHTML = f"""<h3>{locale['processing-transaction']}</h3><p>{locale['menu-tab-item-address-label']}:</p><p class="message-box-secondary"></p><p>{locale['send-tab-amount']}:</p><p class="message-box-secondary"></p>
@@ -839,7 +838,6 @@ async def doUnwrapTx(do_max=0):
         zap_button.element.disabled = False
         return
 
-    
     bridge_fee = txHistory.util.convertFromSat(BRIDGE_FEE)
     burnFormat = txHistory.util.convertFromSat(amount_burn)
 
@@ -883,14 +881,15 @@ async def finalizeSendBurnTx(ghostAddr, amount):
         gas_fees = dict(gas_fees.object_entries().to_py())
         setDoRefresh()
 
-        burn = await burn_wghost(str(ghostAddr), 
-                                 int(amount),
-                                 int(gas_fees["maxFeePerGas"]),
-                                 int(gas_fees['maxPriorityFeePerGas']),
-                                 int(txHistory.util.evmChainId),
-                                 str(txHistory.util.tokenAddr),
-                                 to_js(abi, dict_converter=js.Object.fromEntries),
-                                 )
+        burn = await burn_wghost(
+            str(ghostAddr),
+            int(amount),
+            int(gas_fees["maxFeePerGas"]),
+            int(gas_fees["maxPriorityFeePerGas"]),
+            int(txHistory.util.evmChainId),
+            str(txHistory.util.tokenAddr),
+            to_js(abi, dict_converter=js.Object.fromEntries),
+        )
         message_box.element.innerHTML = f"""<h3>{locale['success']}</h3>
                                                    <br>
                                                    <a class="message-box-secondary" style="font-size:10pt;" href="{explorer_url}{burn}" target="_blank">{burn}</a>
@@ -915,7 +914,6 @@ async def finalizeSendBurnTx(ghostAddr, amount):
                                                     <br>
                                                     <button class="cancel-confirm-send-button" id="cancel-send-button" onclick="closeMessageBox()" type="button">{locale['close']}</button>
                                                     """
-
 
 
 async def finalizeSendTx():
@@ -1082,7 +1080,7 @@ async def clearSendTab():
     addr_input.clear()
     amount_input.clear()
     password_input.clear()
-    
+
     amt_unwrap.clear()
     amt_wrap.clear()
     pass_wrap.clear()
@@ -1282,15 +1280,16 @@ async def runWallet(TOKEN, password):
     idleTimer()
     sub_modal()
 
-    sub_contract(txHistory.util.tokenAddr, to_js(abi, dict_converter=js.Object.fromEntries))
+    sub_contract(
+        txHistory.util.tokenAddr, to_js(abi, dict_converter=js.Object.fromEntries)
+    )
 
-    
     web3_status = dict(acct_info().object_entries().to_py())
 
     if web3_status["address"]:
         WEB3_CONNECTED = True
         await updateWghostBal()
-        
+
     sub_account()
 
     if clientOS in ["Android", "iOS"]:
@@ -1397,7 +1396,7 @@ async def expandSettingsWeb3(setting):
     await asyncio.sleep(0)
 
     fadeTime = 350
-    offset = Element(f'{setting}').element.offsetTop
+    offset = Element(f"{setting}").element.offsetTop
 
     for web3_tab in web3_tabs:
         if web3_tab != setting and txHistory.settingsExpanded[web3_tab]:
@@ -1405,9 +1404,9 @@ async def expandSettingsWeb3(setting):
 
     if not isClosing:
         js.jQuery(f"#web3-tab-container").animate(
-                to_js({"scrollTop": offset}, dict_converter=js.Object.fromEntries),
-                fadeTime,
-            )
+            to_js({"scrollTop": offset}, dict_converter=js.Object.fromEntries),
+            fadeTime,
+        )
 
 
 async def checkExplorer():
@@ -1420,12 +1419,12 @@ async def web3_state_change(data):
     global WEB3_CONNECTED
     status = dict(data.object_entries().to_py())
 
-    conn_status = status['isConnected']
+    conn_status = status["isConnected"]
 
     if not conn_status and WEB3_CONNECTED:
         setDoRefresh()
         js.window.location.reload()
-    
+
     elif not WEB3_CONNECTED and conn_status:
         WEB3_CONNECTED = True
         await updateWghostBal()
@@ -1438,16 +1437,16 @@ async def web3_token_event(data):
     if WEB3_CONNECTED:
         status = dict(acct_info().object_entries().to_py())
 
-        if event['0']['args']['receiver'] == status['address']:
+        if event["0"]["args"]["receiver"] == status["address"]:
             await updateWghostBal()
 
 
 async def web3_modal_open(data):
     global WEB3_CONNECTED
     event = dict(data.object_entries().to_py())
-    
+
     # if event['open']:
-        # js.document.getElementsByTagName("body")[0].style.overflow = "visible"
+    # js.document.getElementsByTagName("body")[0].style.overflow = "visible"
 
 
 async def insertVets():
@@ -2126,17 +2125,17 @@ async def updateWghostBal(delay=False):
 
     if not WEB3_CONNECTED:
         return
-    
+
     if delay:
         await asyncio.sleep(delay)
-    
+
     try:
         evm_acct = dict(acct_info().object_entries().to_py())
 
         contract_info = {
-        "address": evm_acct["address"],
-        "token": txHistory.util.tokenAddr,
-        "chainId": txHistory.util.evmChainId,
+            "address": evm_acct["address"],
+            "token": txHistory.util.tokenAddr,
+            "chainId": txHistory.util.evmChainId,
         }
         wghost_bal = await fetchBalancePoly(
             to_js(contract_info, dict_converter=js.Object.fromEntries)
@@ -2153,9 +2152,10 @@ async def updateWghostBal(delay=False):
         wghost_small_span.element.innerText = ".00"
 
     else:
-        wghost_bal = str(round(txHistory.util.convertFromSat(wghost_bal), 8)).split('.')
+        wghost_bal = str(round(txHistory.util.convertFromSat(wghost_bal), 8)).split(".")
         wghost_big_span.element.innerText = f"{int(wghost_bal[0]):,}"
         wghost_small_span.element.innerText = f".{wghost_bal[1] if len(wghost_bal) > 1 and wghost_bal[1] != '0' else '00'}"
+
 
 async def updateBalanceDisplay():
     await txHistory.walletCls.processUTXO()
@@ -2733,24 +2733,30 @@ async def doTranslation(requested_locale=None):
     # translations for the "web3" tab
 
     Element("wghost-balance").element.innerText = f"wGHOST {locale['wghost-balance']}"
-    Element("web3-tab-item-wrap-label").element.innerText = locale['wrap']
+    Element("web3-tab-item-wrap-label").element.innerText = locale["wrap"]
     Element("wrap-input-amount").element.placeholder = locale["send-tab-amount"]
     Element("wrap-input-password").element.placeholder = locale["send-tab-password"]
-    Element("wrap-min-send").element.innerText = f"Min {locale['send-tab-send-button']}: 2 Ghost"
+    Element(
+        "wrap-min-send"
+    ).element.innerText = f"Min {locale['send-tab-send-button']}: 2 Ghost"
     Element("wrap-min-wrap").element.innerText = f"Min {locale['wrap']}: 1 Ghost"
     Element("bridge-fee-wrap-li").element.innerText = f"{locale['bridge-fee']}: 1 Ghost"
-    Element("wrap-button-wrap-label").element.innerText = locale['wrap']
+    Element("wrap-button-wrap-label").element.innerText = locale["wrap"]
     Element("wrap-button-wrap-max-label").element.innerText = f"{locale['wrap']} Max"
-    Element("web3-tab-item-unwrap-label").element.innerText = locale['unwrap']
-    Element("unwrap-min-send").element.innerText = f"Min {locale['send-tab-send-button']}: 2 wGHOST"
+    Element("web3-tab-item-unwrap-label").element.innerText = locale["unwrap"]
+    Element(
+        "unwrap-min-send"
+    ).element.innerText = f"Min {locale['send-tab-send-button']}: 2 wGHOST"
     Element("unwrap-min-unwrap").element.innerText = f"Min {locale['unwrap']}: 1 wGHOST"
-    Element("bridge-fee-unwrap-li").element.innerText = f"{locale['bridge-fee']}: 1 Ghost"
-    Element("wrap-button-unwrap-label").element.innerText = locale['unwrap']
+    Element(
+        "bridge-fee-unwrap-li"
+    ).element.innerText = f"{locale['bridge-fee']}: 1 Ghost"
+    Element("wrap-button-unwrap-label").element.innerText = locale["unwrap"]
     Element("unwrap-input-amount").element.placeholder = locale["send-tab-amount"]
     Element("wrap-button-uwrap-max-label").element.innerText = f"{locale['unwrap']} Max"
-    Element("web3-tab-item-swap-label").element.innerText = locale['web3-tab-item-swap-label']
-
-
+    Element("web3-tab-item-swap-label").element.innerText = locale[
+        "web3-tab-item-swap-label"
+    ]
 
     # define confirms dict
 
