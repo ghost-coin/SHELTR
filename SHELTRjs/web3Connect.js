@@ -37,6 +37,7 @@ const { publicClient } = configureChains(chains, [
       http: `https://polygon.gateway.tenderly.co/public`,
     }),
   }),
+  w3mProvider({ projectId }),
 ]);
 const wagmiConfig = createConfig({
   autoConnect: true,
