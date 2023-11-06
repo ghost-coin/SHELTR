@@ -34,9 +34,15 @@ const projectId = "fa49146b404b5e95b7f6237c331c03e8";
 const { publicClient } = configureChains(chains, [
   jsonRpcProvider({
     rpc: (chain) => ({
+      http: `https://endpoints.omniatech.io/v1/matic/mainnet/public`,
+    }),
+  }),
+  jsonRpcProvider({
+    rpc: (chain) => ({
       http: `https://polygon.gateway.tenderly.co/public`,
     }),
   }),
+  w3mProvider({ projectId }),
 ]);
 const wagmiConfig = createConfig({
   autoConnect: true,
